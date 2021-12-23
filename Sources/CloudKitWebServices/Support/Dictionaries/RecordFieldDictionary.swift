@@ -82,9 +82,13 @@ struct RecordFieldDictionary: Codable {
         
         switch type {
         
-        // Asset
-        // Bytes
-        // Date/Time
+        // TODO: Asset
+        // TODO: Bytes
+            
+        case "TIMESTAMP":
+            // Documenation states an integer in milliseconds since 1970
+            let timeInterval = try values.decode(Int64.self, forKey: .value)
+            self.value = Date(timeIntervalSince1970: Double(timeInterval / 1000))
         
         case "DOUBLE":
             let doubleValue = try values.decode(Double.self, forKey: .value)
@@ -93,37 +97,47 @@ struct RecordFieldDictionary: Codable {
         case "INT64":
             let intValue = try values.decode(Int64.self, forKey: .value)
             self.value = intValue
-        
-        case "STRING":
-            let stringValue = try values.decode(String.self, forKey: .value)
-            self.value = stringValue
             
-        case "TIMESTAMP":
-            // Documenation states an integer in milliseconds since 1970
-            let timeInterval = try values.decode(Int64.self, forKey: .value)
-            self.value = Date(timeIntervalSince1970: Double(timeInterval / 1000))
-          
         case "LOCATION":
             let locationDictionary = try values.decode(LocationDictionary.self, forKey: .value)
             self.value = CLLocation(locationDictionary: locationDictionary)
             
         case "REFERENCE":
             let reference = try values.decode(ReferenceDictionary.self, forKey: .value)
-            self.value = reference
+            self.value = Record.Reference(reference: reference)
+        
+        case "STRING":
+            let stringValue = try values.decode(String.self, forKey: .value)
+            self.value = stringValue
             
         // MARK: - List Support
+            
+        // TODO: Asset List
+        // TODO: Bytes List
+            
+        case "TIMESTAMP_LIST":
+            // Documenation states an integer in milliseconds since 1970
+            let timeIntervals = try values.decode([Int64].self, forKey: .value)
+            self.value = timeIntervals.map { Date(timeIntervalSince1970: Double($0 / 1000)) }
             
         case "DOUBLE_LIST":
             let doubleValues = try values.decode([Double].self, forKey: .value)
             self.value = doubleValues
             
-        case "STRING_LIST":
-            let stringValues = try values.decode([String].self, forKey: .value)
-            self.value = stringValues
+        case "INT64_LIST":
+            self.value = try values.decode([Int64].self, forKey: .value)
+            
+        case "LOCATION_LIST":
+            let locationDictionaries = try values.decode([LocationDictionary].self, forKey: .value)
+            self.value = locationDictionaries.map { CLLocation(locationDictionary: $0) }
             
         case "REFERENCE_LIST":
             let references = try values.decode([ReferenceDictionary].self, forKey: .value)
-            self.value = references
+            self.value = references.map { Record.Reference(reference: $0) }
+            
+        case "STRING_LIST":
+            let stringValues = try values.decode([String].self, forKey: .value)
+            self.value = stringValues
             
         default:
             print("Unhandeled type: \(type)")

@@ -11,7 +11,7 @@ import Foundation
 public extension Record {
     
     /// An object that uniquely identifies a record in a database.
-    struct ID: Hashable {
+    struct ID: Equatable, Hashable {
         public let recordName: String
         public let zoneID: RecordZone.ID
         

@@ -60,14 +60,6 @@ public class Record {
     }
     
     public subscript(key: String) -> RecordValueProtocol? {
-        guard let value = fields[key] else {
-            return nil
-        }
-        
-        if let reference = value as? ReferenceDictionary {
-            return Record.Reference(reference: reference)
-        }
-        
-        return value
+        fields[key]
     }
 }

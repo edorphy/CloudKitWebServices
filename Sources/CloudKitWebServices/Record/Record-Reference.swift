@@ -9,7 +9,7 @@
 import Foundation
 
 public extension Record {
-    struct Reference {
+    struct Reference: Equatable, Hashable {
         public let recordID: Record.ID
         public let action: ReferenceAction
         
