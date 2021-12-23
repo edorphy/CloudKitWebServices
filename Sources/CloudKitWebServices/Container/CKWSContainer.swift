@@ -10,54 +10,78 @@ import Foundation
 
 public class CKWSContainer {
     
-    public let containerIdentifier: String
+    // MARK: - Types
+    
+    public typealias ContainerIdentifier = String
+    
+    public typealias APIToken = String
+    
+    public enum Environment: String {
+        case development
+        case production
+    }
+    
+    // MARK: - Properties
+    
+    public let containerIdentifier: ContainerIdentifier
+    
+    public let environment: Environment
     
     public private(set) lazy var publicCloudDatabase: CKWSDatabase = {
         CKWSDatabase(container: self, scope: .public)
     }()
     
-    internal let apiToken: String
+    internal let apiToken: APIToken
     
+    // TODO: Inject this to allow for robust short-circuit unit testing
     private let session: URLSession = .shared
     
-    private let environment: Environment
+    private let operationQueue: OperationQueue = OperationQueue()
     
-    public init(identifier: String, token: String) {
+    // MARK: - Initialization
+    
+    public init(identifier: ContainerIdentifier, token: APIToken, environment: Environment = .production) {
+        
+        // TODO: Ensure that the identifier begins with "iCloud." to help developers out.
+        
         self.containerIdentifier = identifier
         self.apiToken = token
+        self.environment = environment
+    }
+    
+    // TODO: A second initializer that takes a configuration? Take a play out of the CloudKit JS lib API?
+    
+    // MARK: - Public Functions
+    
+    public func database(with scope: CKWSDatabase.Scope) -> CKWSDatabase {
+        switch scope {
+        case .public:
+            return self.publicCloudDatabase
+        }
+    }
+    
+    public func add(_ operation: CKWSCloudOperation) {
         
-        #if DEBUG
-        self.environment = .development
-        #else
-        self.environment = .production
-        #endif
+        // TODO: Inspect the configuration and apply them to the operation before enqueuing.
+        self.operationQueue.addOperation(operation)
     }
 }
 
-internal extension CKWSContainer {
+extension CKWSContainer {
     
     func getContainerURL() -> URL {
-        .pathURL
-            .appendingPathComponent("database")
-            .appendingPathComponent(APIVersion.version1.rawValue)
-            .appendingPathComponent(containerIdentifier)
-            .appendingPathComponent(environment.rawValue)
+        
+        // According to the docmentation the Web Service URL should always match the following pattern:
+        // [path]/database/[version]/[container]/[environment]/[operation-specific subpath]
+        
+        let version = "1"
+        
+        return URL.pathURL
+            .appendingPathComponent("database/\(version)/\(containerIdentifier)/\(environment.rawValue)")
     }
 }
 
 private extension URL {
     // swiftlint:disable:next force_unwrapping
     static let pathURL: URL = URL(string: "https://api.apple-cloudkit.com")!
-}
-
-extension CKWSContainer {
-    
-    private enum APIVersion: String {
-        case version1 = "1"
-    }
-    
-    private enum Environment: String {
-        case development
-        case production
-    }
 }

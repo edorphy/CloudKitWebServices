@@ -10,11 +10,28 @@ import Foundation
 
 public class CKWSDatabase {
     
+    // MARK: - Types
+    
+    public enum Scope: String {
+        
+        // swiftlint:disable redundant_string_enum_value
+        
+        case `public` = "public"
+        
+        // TODO: Add support for .private and .shared once user authentication is setup
+        // case `private` = "private"
+        // case shared = "shared"
+        
+        // swiftlint:enable redundant_string_enum_value
+    }
+    
+    // MARK: - Properties
+    
     internal private(set) weak var container: CKWSContainer?
     
     public let scope: Scope
     
-    private let operationQueue: OperationQueue = OperationQueue()
+    // MARK: - Initialization
     
     init(container: CKWSContainer, scope: Scope) {
         self.container = container
@@ -22,11 +39,18 @@ public class CKWSDatabase {
     }
     
     public func add(_ operation: DatabaseOperation) {
-        guard operation.isCancelled == false else { return }
+        guard operation.isCancelled == false else {
+            // TODO: Check CloudKit behavior and see which completion handlers are still invoked in this case.
+            return
+        }
         
         operation.database = self
         
-        self.operationQueue.addOperation(operation)
+        guard let container = container else {
+            fatalError("database is missing container")
+        }
+        
+        container.add(operation)
     }
 }
 
@@ -40,20 +64,5 @@ internal extension CKWSDatabase {
         url.appendPathComponent(scope.rawValue)
         
         return url
-    }
-}
-
-public extension CKWSDatabase {
-    enum Scope: String {
-        
-        // swiftlint:disable redundant_string_enum_value
-        
-        case `public` = "public"
-        
-        // TODO: Add support for .private and .shared once user authentication is setup
-        // case `private` = "private"
-        // case shared = "shared"
-        
-        // swiftlint:enable redundant_string_enum_value
     }
 }
