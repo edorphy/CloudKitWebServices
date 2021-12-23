@@ -60,6 +60,8 @@ extension CloudError: CustomStringConvertible {
     }
 }
 
+// TODO: #3 - Add conformance for LocalizableError and CustomNSError
+
 extension CloudError {
     var statusCode: UInt {
         switch self {

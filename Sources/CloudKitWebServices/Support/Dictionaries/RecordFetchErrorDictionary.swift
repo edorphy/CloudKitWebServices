@@ -27,3 +27,5 @@ struct RecordFetchErrorDictionary: Error, Decodable {
     /// A redirect URL for the user to securely sign in using their Apple ID. This key is present when `serverErrorCode` is `AUTHENTICATION_REQUIRED`.
     let redirectURL: URL?
 }
+
+// TODO: #3 - Add conformance for LocalizableError and CustomNSError
