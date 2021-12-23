@@ -81,8 +81,12 @@ struct RecordFieldDictionary: Codable {
         self.type = type
         
         switch type {
-        
-        // TODO: Asset
+            
+        case "ASSETID":
+            let assetDictionary = try values.decode(AssetDictionary.self, forKey: .value)
+            // TODO: Long term don't save as this type but create an 'AssetProtocol' that represents local and remote assets.
+            self.value = assetDictionary
+            
         // TODO: Bytes
             
         case "TIMESTAMP":
@@ -111,8 +115,12 @@ struct RecordFieldDictionary: Codable {
             self.value = stringValue
             
         // MARK: - List Support
+        
+        case "ASSETID_LIST":
+            let assetDictionaries = try values.decode([AssetDictionary].self, forKey: .value)
+            // TODO: Long term don't save as this type but create an 'AssetProtocol' that represents local and remote assets.
+            self.value = assetDictionaries
             
-        // TODO: Asset List
         // TODO: Bytes List
             
         case "TIMESTAMP_LIST":
