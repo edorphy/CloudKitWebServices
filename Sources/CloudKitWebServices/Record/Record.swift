@@ -12,6 +12,8 @@ public class Record {
     
     public typealias RecordType = String
     
+    public typealias FieldKey = String
+    
     public let recordID: Record.ID
     public let recordType: RecordType
     

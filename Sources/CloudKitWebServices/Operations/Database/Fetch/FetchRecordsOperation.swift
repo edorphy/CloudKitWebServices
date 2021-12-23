@@ -10,23 +10,17 @@ import Foundation
 
 public class FetchRecordsOperation: DatabaseOperation {
     
+    // MARK: - Properties
+    
     private let recordIDs: [Record.ID]
+    
+    public var desiredKeys: [Record.FieldKey]?
     
     public var perRecordResultBlock: ((Record.ID, Result<Record, Error>) -> Void)?
     
-    /// The closure to execute after CloudKit retrieves all of the records.
-    ///
-    /// This property is a closure that returns no value and has the following parameters:
-    /// - A dictionary that contains the records that CloudKit retrieves. Each key in the dictionary is a `RecordID` object that corresponds to a record you request. The value of each key is the actual `Record` object that CloudKit returns.
-    /// - If CloudKit can't retrieve any of the records, an error that provides information about the failure; otherwise, `nil`.
-    ///
-    /// The fetch operation executes this closure only once, and it's your final opportunity to process the results. The closure executes after all of the individual progress closures, but before the operation's completion colsure. The colsure executes serially with respect to the other progress closures of the operation.
-    ///
-    /// The closure reports an error of type partialFailure when it retrieves only some of the records successfully. The `userInfo` dictionary of the error contains a `PartialErrorsByItemIDKey` key that has a dictionary as its value. The keys of the dictionary are the IDs of the records that the operation can't retreive, and the corresponding values are errors that contain information about the failures.
-    ///
-    /// If you intend to use this closure to process results, set it before you execute the operation or submit the operation to a queue.
-    public var fetchRecordsCompletionBlock: (([Record.ID: Record]?, Error?) -> Void)?
-    // TODO: Change this to: ((Result<Void, Error>) -> Void)?
+    public var fetchRecordsResultBlock: ((Result<Void, Error>) -> Void)?
+    
+    // MARK: - Initialization
     
     public init(recordIDs: [Record.ID]) {
         self.recordIDs = recordIDs
@@ -34,18 +28,30 @@ public class FetchRecordsOperation: DatabaseOperation {
     
     override public func main() {
         
-        let request = createRequest()
+        let request: URLRequest
         
-        URLSession.shared.dataTask(with: request) { data, response, error in
+        do {
+            request = try createRequest()
+        } catch {
+            fetchRecordsResultBlock?(.failure(error))
+            self.finish()
+            return
+        }
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            defer {
+                self.finish()
+            }
             
             guard error == nil else {
                 // swiftlint:disable:next force_unwrapping
-                self.invokeCompletionBlock((nil, error!))
+                self.invokeCompletionBlock(error!)
                 return
             }
             
             guard let data = data, let response = response as? HTTPURLResponse else {
-                self.invokeCompletionBlock((nil, NSError()))
+                // TODO: If we can trust the new async/await method signature and documentation, if no error we should ALWAYS have data and response. Use internal error?
+                self.invokeCompletionBlock(NSError())
                 assertionFailure("Unexpected case. Debug this.")
                 return
             }
@@ -75,19 +81,23 @@ public class FetchRecordsOperation: DatabaseOperation {
                         }
                     }
                     
-                    self.invokeCompletionBlock((records, PartialFailure(failedRecords: failureRecords)))
+                    self.invokeCompletionBlock(PartialFailure(failedRecords: failureRecords))
+                    
+                case 503:
+                    // TODO: Convert to ServiceUnavailable code, decode body for a an after key to put into error's userInfo
+                    fatalError("convert to named error, this will be hard to test what Apple's real body returns")
                     
                 default:
                     let errorResponse = try JSONDecoder().decode(RecordFetchErrorDictionary.self, from: data)
-                    self.invokeCompletionBlock((nil, errorResponse))
+                    self.invokeCompletionBlock(errorResponse)
                 }
             } catch {
+                // TODO: Catch per status code and use a helper function
                 fatalError("Received an error decoding the fetch response: \(error)")
             }
-            
-            self.finish()
         }
-        .resume()
+        
+        task.resume()
     }
     
     private func invokeRecordResultBlock(_ completion: @autoclosure () -> (recordID: Record.ID, result: Result<Record, Error>)) {
@@ -97,27 +107,31 @@ public class FetchRecordsOperation: DatabaseOperation {
         }
     }
     
-    private func invokeCompletionBlock(_ completion: @autoclosure () -> (records: [Record.ID: Record]?, error: Error?)) {
-        if let fetchRecordsCompletionBlock = self.fetchRecordsCompletionBlock {
-            let result = completion()
-            fetchRecordsCompletionBlock(result.records, result.error)
+    private func invokeCompletionBlock(_ completion: @autoclosure () -> (Error?)) {
+        if let fetchRecordsResultBlock = self.fetchRecordsResultBlock {
+            if let error = completion() {
+                fetchRecordsResultBlock(.failure(error))
+            } else {
+                fetchRecordsResultBlock(.success(()))
+            }
         }
     }
     
-    private func createRequest() -> URLRequest {
+    private func createRequest() throws -> URLRequest {
         var request = URLRequest(url: getURL())
         request.httpMethod = "POST"
         
         let requestBody = RequestBody(
             records: recordIDs.map({ recordID in
                 LookupRecordDictionary(recordName: recordID.recordName)
-            })
+            }), desiredKeys: self.desiredKeys
         )
         
         do {
             request.httpBody = try JSONEncoder().encode(requestBody)
         } catch {
-            fatalError("request encoding should never happen, but we should be more graceful with this")
+            // TODO: Convert this to throws invalidArguments error
+            throw error
         }
         
         return request

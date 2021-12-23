@@ -13,11 +13,9 @@ struct LookupRecordDictionary: Encodable {
     /// The unique name used to identify the record within a zone.
     let recordName: String
     
-    /// An array of strings containing record field names that limits the amount of data returned in this operation. Only the fields specified in the array are returned. The default is `null`, which fetches all record fields.
-    let desiredKeys: [String]?
+    // NOTE: This dictionary also supports a `desiredKeys` array, however, this is not something in standard CloudKit so it will not be implemented here. Use the Fetch operation's desired keys property instead.
     
-    init(recordName: String, desiredKeys: [String]? = nil) {
+    init(recordName: String) {
         self.recordName = recordName
-        self.desiredKeys = desiredKeys
     }
 }

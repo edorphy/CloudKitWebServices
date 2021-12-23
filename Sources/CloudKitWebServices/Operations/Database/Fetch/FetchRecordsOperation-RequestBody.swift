@@ -17,7 +17,9 @@ extension FetchRecordsOperation {
         // TODO: ZoneID
         
         // TODO: DesiredKeys
+        let desiredKeys: [Record.FieldKey]?
         
-        // TODO: numbersAsStrings
+        // Explicitly set this to false in case default behaivor changes. The Record Decoding is setup to expect this behavior.
+        let numbersAsStrings: Bool = false
     }
 }

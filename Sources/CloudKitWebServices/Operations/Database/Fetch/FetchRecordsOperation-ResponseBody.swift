@@ -26,6 +26,12 @@ extension FetchRecordsOperation {
             var resultsContainer = try values.nestedUnkeyedContainer(forKey: .records)
             
             while !resultsContainer.isAtEnd {
+                
+                // TODO: Make this better
+                // Attempt to decode the success body, on failure decode the failure body. But this has a side effect if the success
+                // body failed to decode because of a legitimate decode error and not simply just the incorrect type.
+                // In other words, need to add detection for false negative decoding error on the RecordDictionary type.
+                
                 do {
                     let recordDictionary = try resultsContainer.decode(RecordDictionary.self)
                     records.append(.success(recordDictionary))
