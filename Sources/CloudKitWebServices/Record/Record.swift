@@ -14,21 +14,30 @@ public class Record {
     
     public let recordID: Record.ID
     public let recordType: RecordType
-    public let recordChangeTag: String?
+    
     public let creationDate: Date?
+    public let creatorUserRecordID: Record.ID?
+    
     public let modificationDate: Date?
-//    let lastModifiedUserRecordID: String?
+    public let lastModifiedUserRecordID: Record.ID?
+    
+    public let recordChangeTag: String?
     
     public var fields: [String: RecordValueProtocol]
+    
+    // TODO: Add support for parent, share, allTokens, etc.
     
     public init(recordType: RecordType, recordID: Record.ID) {
         self.recordType = recordType
         self.recordID = recordID
-        self.recordChangeTag = nil
         
         self.creationDate = nil
+        self.creatorUserRecordID = nil
+        
         self.modificationDate = nil
-//        self.lastModifiedUserRecordID = nil
+        self.lastModifiedUserRecordID = nil
+        
+        self.recordChangeTag = nil
         
         self.fields = [:]
     }
@@ -38,21 +47,23 @@ public class Record {
         self.recordType = recordDictionary.recordType
         self.recordChangeTag = recordDictionary.recordChangeTag
         
-        self.creationDate = {
-            guard let interval = recordDictionary.created?.timestamp else {
-                return nil
-            }
-            
-            return Date(timeIntervalSinceReferenceDate: interval)
-        }()
+        if let created = recordDictionary.created {
+            // Dates are saved as milliseconds from 1970 so divide by 1000 is required to convert to seconds
+            self.creationDate = Date(timeIntervalSince1970: created.timestamp / 1000)
+            self.creatorUserRecordID = Record.ID(recordName: created.userRecordName)
+        } else {
+            self.creationDate = nil
+            self.creatorUserRecordID = nil
+        }
         
-        self.modificationDate = {
-            guard let interval = recordDictionary.modified?.timestamp else {
-                return nil
-            }
-            
-            return Date(timeIntervalSinceReferenceDate: interval)
-        }()
+        if let modified = recordDictionary.modified {
+            // Dates are saved as milliseconds from 1970 so divide by 1000 is required to convert to seconds
+            self.modificationDate = Date(timeIntervalSince1970: modified.timestamp / 1000)
+            self.lastModifiedUserRecordID = Record.ID(recordName: modified.userRecordName)
+        } else {
+            self.modificationDate = nil
+            self.lastModifiedUserRecordID = nil
+        }
         
         self.fields = Dictionary(uniqueKeysWithValues: recordDictionary.fields.map { key, value in
             (key, value.value)
