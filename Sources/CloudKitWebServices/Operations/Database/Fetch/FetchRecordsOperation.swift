@@ -12,18 +12,7 @@ public class FetchRecordsOperation: DatabaseOperation {
     
     private let recordIDs: [Record.ID]
     
-    /// The closure to execute when a record becomes available.
-    ///
-    /// This property is a closure that returns no value and has the following parameters:
-    /// - The record, or `nil` if CloudKit can't retreive the record.
-    /// - The ID of the record.
-    /// - If CloudKit can't retrieve the record, and error that provides information about the failure; otherwise, `nil`.
-    ///
-    /// The fetch operation executes this closure once for each record ID in the `recordIds` property. Each time the closure executes, it executes serially with respect to the other progress closures of the operation.
-    ///
-    /// If you intend to use this closure to process results, set it before you execute the operation or submit the operation to a queue.
-    public var perRecordCompletionBlock: ((Record.ID, Result<Record, Error>) -> Void)?
-    // TODO: Change this to ((RecordID, Result<Record, Error>) -> Void)?
+    public var perRecordResultBlock: ((Record.ID, Result<Record, Error>) -> Void)?
     
     /// The closure to execute after CloudKit retrieves all of the records.
     ///
@@ -76,13 +65,13 @@ public class FetchRecordsOperation: DatabaseOperation {
                         case .success(let recordDictionary):
                             let record = Record(recordDictionary: recordDictionary)
                             records[record.recordID] = record
-                            self.invokeRecordCompletionBlock((record.recordID, .success(record)))
+                            self.invokeRecordResultBlock((record.recordID, .success(record)))
                             
                         case .failure(let errorDictionary):
                             // swiftlint:disable:next force_unwrapping
                             let recordID = Record.ID(recordName: errorDictionary.recordName!)
                             failureRecords[recordID] = errorDictionary
-                            self.invokeRecordCompletionBlock((recordID, .failure(errorDictionary)))
+                            self.invokeRecordResultBlock((recordID, .failure(errorDictionary)))
                         }
                     }
                     
@@ -101,10 +90,10 @@ public class FetchRecordsOperation: DatabaseOperation {
         .resume()
     }
     
-    private func invokeRecordCompletionBlock(_ completion: @autoclosure () -> (recordID: Record.ID, result: Result<Record, Error>)) {
-        if let perRecordCompletionBlock = self.perRecordCompletionBlock {
+    private func invokeRecordResultBlock(_ completion: @autoclosure () -> (recordID: Record.ID, result: Result<Record, Error>)) {
+        if let perRecordResultBlock = self.perRecordResultBlock {
             let result = completion()
-            perRecordCompletionBlock(result.recordID, result.result)
+            perRecordResultBlock(result.recordID, result.result)
         }
     }
     
