@@ -36,8 +36,12 @@ struct AssetDictionary: Codable {
         self.referenceChecksum = try container.decodeIfPresent(String.self, forKey: .referenceChecksum)
         self.wrappingKey = try container.decodeIfPresent(String.self, forKey: .wrappingKey)
         
-        if let downloadURLString = try container.decodeIfPresent(String.self, forKey: .downloadURL) {
-            self.downloadURL = URL(string: downloadURLString)
+        // The Asset's downloadURL may include illegal URL characters in the query
+        // Correct this by percent encoding it. The field is required when the asset is fetched from the server but optional during uploads.
+        
+        if let downloadURLString = try container.decodeIfPresent(String.self, forKey: .downloadURL),
+            let downloadURL = URL(string: downloadURLString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? downloadURLString) {
+            self.downloadURL = downloadURL
         } else {
             self.downloadURL = nil
         }
