@@ -134,6 +134,9 @@ public class FetchRecordsOperation: DatabaseOperation {
             throw error
         }
         
+        request.allowsCellularAccess = configuration.allowsCellularAccess
+        request.timeoutInterval = configuration.timeoutIntervalForRequest
+        
         return request
     }
 }

@@ -10,14 +10,47 @@ import Foundation
 
 public class CKWSCloudOperation: Operation {
     
+    // MARK: - Types
+    
+    public struct Configuration {
+        var allowsCellularAccess: Bool = true
+        var qualityOfService: QualityOfService = .default
+        var timeoutIntervalForRequest: TimeInterval = 60
+        
+        // TODO: This isn't used yet, figure out what to map it to
+        var timouetIntervalForResource: TimeInterval = 60
+        
+        // TODO: New fields for advanced URLRequest support?
+        // let allowsConstrainedNetworkAccess: Bool
+        // let allowsExpensiveNetworkAccess: Bool
+    }
+    
+    // MARK: - Properties
+    
     // TODO: Add a better label to this queue that perhaps uses the bundle and the prefix of a UUID to randomize each operation
     private let lockQueue = DispatchQueue(label: "dev.twincitiesapp.cloudkitwebservices.cloudoperation", attributes: .concurrent)
+    
+    private var _isExecuting: Bool = false
+    private var _isFinished: Bool = false
+    
+    public var configuration: Configuration = Configuration()
+    
+    // MARK: - Subclass Helper Functions
+    
+    func finish() {
+        isExecuting = false
+        isFinished = true
+    }
+}
+
+// MARK: - Operation Support
+
+extension CKWSCloudOperation {
     
     override public var isAsynchronous: Bool {
         true
     }
     
-    private var _isExecuting: Bool = false
     override public var isExecuting: Bool {
         get {
             
@@ -35,7 +68,6 @@ public class CKWSCloudOperation: Operation {
         }
     }
     
-    private var _isFinished: Bool = false
     override public private(set) var isFinished: Bool {
         get {
             lockQueue.sync { () -> Bool in
@@ -61,10 +93,5 @@ public class CKWSCloudOperation: Operation {
         isFinished = false
         isExecuting = true
         main()
-    }
-    
-    func finish() {
-        isExecuting = false
-        isFinished = true
     }
 }

@@ -46,6 +46,9 @@ public class CKWSDatabase {
         
         operation.database = self
         
+        // TODO: Add CKOperationGroup and corresponding configuration? Check the rules for which property takes effect.
+        operation.qualityOfService = operation.configuration.qualityOfService
+        
         guard let container = container else {
             fatalError("database is missing container")
         }
