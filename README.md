@@ -2,6 +2,10 @@
 
 This package enables developers to write code that interacts with CloudKit in targets that don't support the CloudKit Framework directly (such as App Clips).
 
+## Stability
+
+This project is currently undergoing development and is subject to breaking changes. During this development Semantic Versioning will not be followed entirely as long as the package remains under release version 1.0.0.
+
 ## Contributing
 
 The goal of this project is to provide developers with easy access to CloudKit where it is not available such as within App Clips. If you find something missing that you'd like to see get added, open up an issue, or if you're comfortable writing framework code, open up a Pull Request.
