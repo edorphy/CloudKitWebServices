@@ -1,5 +1,5 @@
 //
-//  RecordZone-ID.swift
+//  CKWSRecordZone-ID.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/16/21.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension RecordZone {
+public extension CKWSRecordZone {
     struct ID: Hashable {
         let zoneName: String
         let ownerName: String
@@ -18,7 +18,7 @@ public extension RecordZone {
             self.ownerName = ownerName
         }
         
-        static let `default`: RecordZone.ID = RecordZone.ID(zoneName: defaultZoneName, ownerName: "")
+        static let `default`: CKWSRecordZone.ID = CKWSRecordZone.ID(zoneName: defaultZoneName, ownerName: "")
         static let defaultZoneName: String = "_defaultZone"
     }
 }

@@ -1,5 +1,5 @@
 //
-//  CKWSCloudOperation.swift
+//  CKWSOperation.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/12/21.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class CKWSCloudOperation: Operation {
+public class CKWSOperation: Operation {
     
     // MARK: - Types
     
@@ -45,7 +45,7 @@ public class CKWSCloudOperation: Operation {
 
 // MARK: - Operation Support
 
-extension CKWSCloudOperation {
+extension CKWSOperation {
     
     override public var isAsynchronous: Bool {
         true

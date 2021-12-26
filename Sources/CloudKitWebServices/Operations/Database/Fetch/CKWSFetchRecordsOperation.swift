@@ -1,5 +1,5 @@
 //
-//  FetchRecordsOperation.swift
+//  CKWSFetchRecordsOperation.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/12/21.
@@ -8,21 +8,21 @@
 
 import Foundation
 
-public class FetchRecordsOperation: DatabaseOperation {
+public class CKWSFetchRecordsOperation: CKWSDatabaseOperation {
     
     // MARK: - Properties
     
-    private let recordIDs: [Record.ID]
+    private let recordIDs: [CKWSRecord.ID]
     
-    public var desiredKeys: [Record.FieldKey]?
+    public var desiredKeys: [CKWSRecord.FieldKey]?
     
-    public var perRecordResultBlock: ((Record.ID, Result<Record, Error>) -> Void)?
+    public var perRecordResultBlock: ((CKWSRecord.ID, Result<CKWSRecord, Error>) -> Void)?
     
     public var fetchRecordsResultBlock: ((Result<Void, Error>) -> Void)?
     
     // MARK: - Initialization
     
-    public init(recordIDs: [Record.ID]) {
+    public init(recordIDs: [CKWSRecord.ID]) {
         self.recordIDs = recordIDs
     }
     
@@ -62,20 +62,20 @@ public class FetchRecordsOperation: DatabaseOperation {
                     
                     let body = try JSONDecoder().decode(ResponseBody.self, from: data)
                     
-                    var records: [Record.ID: Record] = [:]
-                    var failureRecords: [Record.ID: RecordFetchErrorDictionary] = [:]
+                    var records: [CKWSRecord.ID: CKWSRecord] = [:]
+                    var failureRecords: [CKWSRecord.ID: RecordFetchErrorDictionary] = [:]
                     
                     body.records.forEach { recordResult in
                         
                         switch recordResult {
                         case .success(let recordDictionary):
-                            let record = Record(recordDictionary: recordDictionary)
+                            let record = CKWSRecord(recordDictionary: recordDictionary)
                             records[record.recordID] = record
                             self.invokeRecordResultBlock((record.recordID, .success(record)))
                             
                         case .failure(let errorDictionary):
                             // swiftlint:disable:next force_unwrapping
-                            let recordID = Record.ID(recordName: errorDictionary.recordName!)
+                            let recordID = CKWSRecord.ID(recordName: errorDictionary.recordName!)
                             failureRecords[recordID] = errorDictionary
                             self.invokeRecordResultBlock((recordID, .failure(errorDictionary)))
                         }
@@ -100,7 +100,7 @@ public class FetchRecordsOperation: DatabaseOperation {
         task.resume()
     }
     
-    private func invokeRecordResultBlock(_ completion: @autoclosure () -> (recordID: Record.ID, result: Result<Record, Error>)) {
+    private func invokeRecordResultBlock(_ completion: @autoclosure () -> (recordID: CKWSRecord.ID, result: Result<CKWSRecord, Error>)) {
         if let perRecordResultBlock = self.perRecordResultBlock {
             let result = completion()
             perRecordResultBlock(result.recordID, result.result)
@@ -141,7 +141,7 @@ public class FetchRecordsOperation: DatabaseOperation {
     }
 }
 
-extension FetchRecordsOperation {
+extension CKWSFetchRecordsOperation {
     func getURL() -> URL {
         guard let database = self.database else {
             fatalError("the operation was not configured with a database which is required")
@@ -151,5 +151,63 @@ extension FetchRecordsOperation {
         url.appendPathComponent("lookup")
         
         return url
+    }
+}
+
+// MARK: - Request/Response Body Types
+
+internal extension CKWSFetchRecordsOperation {
+    struct RequestBody: Encodable {
+        
+        /// Array of record dictionaries, described in Lookup Record Dictionary, identifying the records to fetch.
+        let records: [LookupRecordDictionary]
+        
+        // TODO: ZoneID
+        
+        // TODO: DesiredKeys
+        let desiredKeys: [CKWSRecord.FieldKey]?
+        
+        // Explicitly set this to false in case default behaivor changes. The Record Decoding is setup to expect this behavior.
+        let numbersAsStrings: Bool = false
+    }
+    
+    struct ResponseBody: Decodable {
+        
+        enum CodingKeys: String, CodingKey {
+            case records
+        }
+        
+        let records: [Result<RecordDictionary, RecordFetchErrorDictionary>]
+        
+        init(from decoder: Decoder) throws {
+            
+            let values = try decoder.container(keyedBy: CodingKeys.self)
+            
+            var records = [Result<RecordDictionary, RecordFetchErrorDictionary>]()
+            
+            var resultsContainer = try values.nestedUnkeyedContainer(forKey: .records)
+            
+            while !resultsContainer.isAtEnd {
+                
+                // TODO: Make this better
+                // Attempt to decode the success body, on failure decode the failure body. But this has a side effect if the success
+                // body failed to decode because of a legitimate decode error and not simply just the incorrect type.
+                // In other words, need to add detection for false negative decoding error on the RecordDictionary type.
+                
+                do {
+                    let recordDictionary = try resultsContainer.decode(RecordDictionary.self)
+                    records.append(.success(recordDictionary))
+                } catch {
+                    do {
+                        let errorDictionary = try resultsContainer.decode(RecordFetchErrorDictionary.self)
+                        records.append(.failure(errorDictionary))
+                    } catch {
+                        throw error
+                    }
+                }
+            }
+            
+            self.records = records
+        }
     }
 }

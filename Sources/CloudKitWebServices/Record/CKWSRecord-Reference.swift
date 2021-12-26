@@ -8,23 +8,23 @@
 
 import Foundation
 
-public extension Record {
+public extension CKWSRecord {
     struct Reference: Equatable, Hashable {
-        public let recordID: Record.ID
+        public let recordID: CKWSRecord.ID
         public let action: ReferenceAction
         
-        public init(recordID: Record.ID, action: ReferenceAction) {
+        public init(recordID: CKWSRecord.ID, action: ReferenceAction) {
             self.recordID = recordID
             self.action = action
         }
         
-        public init(record: Record, action: ReferenceAction) {
+        public init(record: CKWSRecord, action: ReferenceAction) {
             self.recordID = record.recordID
             self.action = action
         }
         
         internal init(reference: ReferenceDictionary) {
-            self.recordID = Record.ID(recordName: reference.recordName)
+            self.recordID = CKWSRecord.ID(recordName: reference.recordName)
             self.action = {
                 guard let action = reference.action else { return .none }
                 switch action {

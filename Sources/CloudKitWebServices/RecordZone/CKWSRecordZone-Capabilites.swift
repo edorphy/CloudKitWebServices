@@ -1,5 +1,5 @@
 //
-//  RecordZone.swift
+//  CKWSRecordZone.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/16/21.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension RecordZone {
+public extension CKWSRecordZone {
     struct Capabilites: OptionSet {
         public let rawValue: UInt
         

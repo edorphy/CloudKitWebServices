@@ -15,12 +15,12 @@ struct RecordFieldDictionary: Codable {
         case type
     }
     
-    let value: RecordValueProtocol
+    let value: CKWSRecordValueProtocol
     
     // TODO: The reference states that type is optional, but what is the practical usage of this? Maybe make it required
     let type: String?
     
-    init(value: RecordValueProtocol, type: String?) {
+    init(value: CKWSRecordValueProtocol, type: String?) {
         self.value = value
         self.type = type
     }
@@ -56,7 +56,7 @@ struct RecordFieldDictionary: Codable {
         case let referenceValue as ReferenceDictionary:
             try container.encode(referenceValue, forKey: .value)
             
-        case let recordReferenceValue as Record.Reference:
+        case let recordReferenceValue as CKWSRecord.Reference:
             try container.encode(ReferenceDictionary(reference: recordReferenceValue), forKey: .value)
             
         case let stringValue as String:
@@ -108,7 +108,7 @@ struct RecordFieldDictionary: Codable {
             
         case "REFERENCE":
             let reference = try values.decode(ReferenceDictionary.self, forKey: .value)
-            self.value = Record.Reference(reference: reference)
+            self.value = CKWSRecord.Reference(reference: reference)
         
         case "STRING":
             let stringValue = try values.decode(String.self, forKey: .value)
@@ -141,7 +141,7 @@ struct RecordFieldDictionary: Codable {
             
         case "REFERENCE_LIST":
             let references = try values.decode([ReferenceDictionary].self, forKey: .value)
-            self.value = references.map { Record.Reference(reference: $0) }
+            self.value = references.map { CKWSRecord.Reference(reference: $0) }
             
         case "STRING_LIST":
             let stringValues = try values.decode([String].self, forKey: .value)

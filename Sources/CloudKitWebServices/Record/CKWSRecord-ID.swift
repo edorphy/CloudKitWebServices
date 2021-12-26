@@ -1,5 +1,5 @@
 //
-//  Record-ID.swift
+//  CKWSRecord-ID.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/16/21.
@@ -8,12 +8,12 @@
 
 import Foundation
 
-public extension Record {
+public extension CKWSRecord {
     
     /// An object that uniquely identifies a record in a database.
     struct ID: Equatable, Hashable {
         public let recordName: String
-        public let zoneID: RecordZone.ID
+        public let zoneID: CKWSRecordZone.ID
         
         public init(recordName: String) {
             self.recordName = recordName
@@ -26,7 +26,7 @@ public extension Record {
         ///   - zoneID: The ID of the record zone where you want to store the record.
         ///
         /// Use this method when you create or search for records in a zone other than the default zone. The value in the zoneID parameter must represent a zone that already exists in the database. If the record zone doesn’t exist, save the corresponding CKRecordZone object to the database before attempting to save any CKRecord objects in that zone.
-        public init(recordName: String, zoneID: RecordZone.ID) {
+        public init(recordName: String, zoneID: CKWSRecordZone.ID) {
             self.recordName = recordName
             self.zoneID = zoneID
         }

@@ -22,4 +22,4 @@ public struct CKWSAsset {
     }
 }
 
-extension CKWSAsset: RecordValueProtocol { }
+extension CKWSAsset: CKWSRecordValueProtocol { }

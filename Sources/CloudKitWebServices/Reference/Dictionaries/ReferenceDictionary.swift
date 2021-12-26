@@ -27,7 +27,7 @@ struct ReferenceDictionary: Codable {
         self.action = action
     }
     
-    init(reference: Record.Reference) {
+    init(reference: CKWSRecord.Reference) {
         self.recordName = reference.recordID.recordName
         self.zoneID = nil
         self.action = nil

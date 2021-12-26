@@ -1,5 +1,5 @@
 //
-//  ContainerTests.swift
+//  CKWSContainerTests.swift
 //  CloudKitWebServicesTests
 //
 //  Created by Eric Dorphy on 12/22/21.
@@ -9,7 +9,7 @@
 import CloudKitWebServices
 import XCTest
 
-class ContainerTests: XCTestCase {
+class CKWSContainerTests: XCTestCase {
 
     func testContainerInit() throws {
         XCTAssertNotNil(CKWSContainer(identifier: "non-empty-value", token: "non-empty-value"))

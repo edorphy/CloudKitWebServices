@@ -49,4 +49,4 @@ struct AssetDictionary: Codable {
 }
 
 // TODO: Temporary, eventually want to switch this to an internal protocol OR remove conformance entirely and replace occurrences in record's fields with public type
-extension AssetDictionary: RecordValueProtocol { }
+extension AssetDictionary: CKWSRecordValueProtocol { }

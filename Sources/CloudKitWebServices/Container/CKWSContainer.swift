@@ -60,7 +60,7 @@ public class CKWSContainer {
         }
     }
     
-    public func add(_ operation: CKWSCloudOperation) {
+    public func add(_ operation: CKWSOperation) {
         
         // TODO: Inspect the configuration and apply them to the operation before enqueuing.
         self.operationQueue.addOperation(operation)

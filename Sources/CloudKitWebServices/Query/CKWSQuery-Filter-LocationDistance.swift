@@ -9,7 +9,7 @@
 import CoreLocation
 import Foundation
 
-public extension Query.Filter {
+public extension CKWSQuery.Filter {
     init(name: String, distance: Double, to location: CLLocation) {
         self.name = name
         self.comparator = .lessThan

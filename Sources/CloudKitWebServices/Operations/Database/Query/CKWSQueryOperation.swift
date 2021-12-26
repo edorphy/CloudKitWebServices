@@ -1,5 +1,5 @@
 //
-//  QueryOperation.swift
+//  CKWSQueryOperation.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/13/21.
@@ -8,9 +8,9 @@
 
 import Foundation
 
-public class QueryOperation: DatabaseOperation {
+public class CKWSQueryOperation: CKWSDatabaseOperation {
     
-    public var query: Query
+    public var query: CKWSQuery
     
     public var cursor: Cursor?
     
@@ -19,16 +19,16 @@ public class QueryOperation: DatabaseOperation {
     /// An array of strings containing record field names that limits the amount of data returned in this operation. Only the fields specified in the array are returned. The default is `nil`, which fetches all record fields.
     public var desiredKeys: [String]?
     
-    public var recordFetchedBlock: ((Record) -> Void)?
+    public var recordFetchedBlock: ((CKWSRecord) -> Void)?
     
     public var queryCompletionBlock: ((Result<Cursor?, Error>) -> Void)?
     
-    public init(query: Query) {
+    public init(query: CKWSQuery) {
         self.query = query
         self.cursor = nil
     }
     
-    public init(cursor: Cursor) {
+    public init(cursor: CKWSQueryOperation.Cursor) {
         self.query = cursor.query
         self.cursor = cursor
     }
@@ -56,7 +56,7 @@ public class QueryOperation: DatabaseOperation {
                     let body = try JSONDecoder().decode(ResponseBody.self, from: data)
                     
                     body.records.forEach { record in
-                        self.invokeRecordFetchedBlock(Record(recordDictionary: record))
+                        self.invokeRecordFetchedBlock(CKWSRecord(recordDictionary: record))
                     }
                     
                     self.invokeQueryCompletionBlock(.success(Cursor(query: self.query, continuationMarker: body.continuationMarker)))
@@ -81,7 +81,7 @@ public class QueryOperation: DatabaseOperation {
         }
     }
     
-    private func invokeRecordFetchedBlock(_ record: @autoclosure () -> (Record)) {
+    private func invokeRecordFetchedBlock(_ record: @autoclosure () -> (CKWSRecord)) {
         if let recordFetchedBlock = self.recordFetchedBlock {
             recordFetchedBlock(record())
         }
@@ -124,24 +124,39 @@ public class QueryOperation: DatabaseOperation {
     }
 }
 
-public extension QueryOperation {
-    struct Cursor {
-        let query: Query
-        let continuationMarker: String
-        
-        init?(query: Query, continuationMarker: String?) {
-            guard let continuationMarker = continuationMarker else {
-                return nil
-            }
-            
-            self.query = query
-            self.continuationMarker = continuationMarker
-        }
-    }
-}
-
 // TODO: Move to better place
 
 private extension Int {
     static let maximumQueryLimit: Int = 200
+}
+
+// MARK: - Request/Response Body Types
+
+internal extension CKWSQueryOperation {
+    struct RequestBody: Encodable {
+        // TODO: ZoneID
+        
+        /// The maximum number of records to fetch.
+        let resultsLimit: Int
+        
+        /// The query to apply.
+        let query: QueryDictionary
+        
+        /// The location of the last batch of results. Use this key when the results of a previous fetch exceeds the maximum.
+        let continuationMarker: String?
+        
+        /// An array of strings containing record field names that limits the amount of data returned in this operation. Only the fields specified in the array are returned. The default is `null`, which fetches all record fields.
+        let desiredKeys: [String]?
+        
+        /// A Boolean value determining whether all zones should be searched. This key is ignored if zoneID is non-null. To search all zones, set to true. To search the default zone only, set to false.
+        let zoneWide: Bool? = false
+        
+        /// A Boolean value indicating whether number fields should be represented by strings. The default value is false.
+        let numbersAsStrings: Bool? = false
+    }
+    
+    struct ResponseBody: Decodable {
+        let records: [RecordDictionary]
+        let continuationMarker: String?
+    }
 }

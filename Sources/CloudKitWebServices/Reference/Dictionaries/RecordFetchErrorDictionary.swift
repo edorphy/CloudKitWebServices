@@ -16,7 +16,7 @@ struct RecordFetchErrorDictionary: Error, Decodable {
     let reason: String
     
     /// A string containing the code for the error that occurred.
-    let serverErrorCode: CloudError
+    let serverErrorCode: ServerErrorCode
     
     /// The suggested time to wait before trying this operation again. If this key is not set, the operation can't be retried.
     let retryAfter: UInt?

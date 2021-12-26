@@ -38,7 +38,7 @@ public class CKWSDatabase {
         self.scope = scope
     }
     
-    public func add(_ operation: DatabaseOperation) {
+    public func add(_ operation: CKWSDatabaseOperation) {
         guard operation.isCancelled == false else {
             // TODO: Check CloudKit behavior and see which completion handlers are still invoked in this case.
             return

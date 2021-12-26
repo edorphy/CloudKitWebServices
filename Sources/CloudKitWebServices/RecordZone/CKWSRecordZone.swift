@@ -9,20 +9,20 @@
 import Foundation
 
 /// A database partition that contains related records.
-public struct RecordZone {
-    let zoneID: RecordZone.ID
-    let capabilites: RecordZone.Capabilites
+public struct CKWSRecordZone {
+    let zoneID: CKWSRecordZone.ID
+    let capabilites: CKWSRecordZone.Capabilites
 
     // TODO: init(zoneName: String), uses default user as owner name... which read only cloudkit doesn't have
     
-    init(zoneID: RecordZone.ID) {
+    init(zoneID: CKWSRecordZone.ID) {
         self.zoneID = zoneID
-        self.capabilites = RecordZone.Capabilites()
+        self.capabilites = CKWSRecordZone.Capabilites()
     }
     
     /// Returns the default record zone.
     /// - Returns: Returns the default record zone.
-    static func `default`() -> RecordZone {
-        RecordZone(zoneID: .default)
+    static func `default`() -> CKWSRecordZone {
+        CKWSRecordZone(zoneID: .default)
     }
 }

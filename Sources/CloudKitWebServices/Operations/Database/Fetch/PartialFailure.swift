@@ -9,9 +9,9 @@
 import Foundation
 
 struct PartialFailure: Error {
-    let failedRecords: [Record.ID: RecordFetchErrorDictionary]
+    let failedRecords: [CKWSRecord.ID: RecordFetchErrorDictionary]
     
-    init?(failedRecords: [Record.ID: RecordFetchErrorDictionary]) {
+    init?(failedRecords: [CKWSRecord.ID: RecordFetchErrorDictionary]) {
         guard failedRecords.isEmpty == false else {
             return nil
         }

@@ -8,17 +8,17 @@
 
 import Foundation
 
-public extension Query {
+public extension CKWSQuery {
     struct Filter {
         let name: String
         let comparator: Comparator
-        let value: RecordValueProtocol
+        let value: CKWSRecordValueProtocol
         let distance: Double?
     }
 }
 
-public extension Query.Filter {
-    init(name: String, comparator: Query.Filter.Comparator, value: RecordValueProtocol) {
+public extension CKWSQuery.Filter {
+    init(name: String, comparator: CKWSQuery.Filter.Comparator, value: CKWSRecordValueProtocol) {
         self.name = name
         self.comparator = comparator
         self.value = value
@@ -33,7 +33,7 @@ public extension Query.Filter {
         case let referenceValue as ReferenceDictionary:
             return RecordFieldDictionary(value: referenceValue, type: "REFERENCE")
             
-        case let recordReferenceValue as Record.Reference:
+        case let recordReferenceValue as CKWSRecord.Reference:
             return RecordFieldDictionary(value: recordReferenceValue, type: "REFERENCE")
             
         default:
@@ -43,7 +43,7 @@ public extension Query.Filter {
     }
 }
 
-public extension Query.Filter {
+public extension CKWSQuery.Filter {
     enum Comparator: String, Codable {
         case equals = "EQUALS"
         case lessThan = "LESS_THAN"
