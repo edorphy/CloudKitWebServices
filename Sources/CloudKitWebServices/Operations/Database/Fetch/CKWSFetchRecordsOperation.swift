@@ -16,9 +16,9 @@ public class CKWSFetchRecordsOperation: CKWSDatabaseOperation {
     
     public var desiredKeys: [CKWSRecord.FieldKey]?
     
-    public var perRecordResultBlock: ((CKWSRecord.ID, Result<CKWSRecord, Error>) -> Void)?
+    public var perRecordResultBlock: ((_ recordID: CKWSRecord.ID, _ recordResult: Result<CKWSRecord, Error>) -> Void)?
     
-    public var fetchRecordsResultBlock: ((Result<Void, Error>) -> Void)?
+    public var fetchRecordsResultBlock: ((_ operationResult: Result<Void, Error>) -> Void)?
     
     // MARK: - Initialization
     
@@ -45,13 +45,13 @@ public class CKWSFetchRecordsOperation: CKWSDatabaseOperation {
             
             guard error == nil else {
                 // swiftlint:disable:next force_unwrapping
-                self.invokeCompletionBlock(error!)
+                self.invokeOperationResultBlock(error!)
                 return
             }
             
             guard let data = data, let response = response as? HTTPURLResponse else {
                 // TODO: If we can trust the new async/await method signature and documentation, if no error we should ALWAYS have data and response. Use internal error?
-                self.invokeCompletionBlock(NSError())
+                self.invokeOperationResultBlock(NSError())
                 assertionFailure("Unexpected case. Debug this.")
                 return
             }
@@ -81,15 +81,14 @@ public class CKWSFetchRecordsOperation: CKWSDatabaseOperation {
                         }
                     }
                     
-                    self.invokeCompletionBlock(PartialFailure(failedRecords: failureRecords))
+                    self.invokeOperationResultBlock(nil)
                     
                 case 503:
-                    // TODO: Convert to ServiceUnavailable code, decode body for a an after key to put into error's userInfo
-                    fatalError("convert to named error, this will be hard to test what Apple's real body returns")
+                    self.invokeOperationResultBlock(CKWSError(code: .serviceUnavailable))
                     
                 default:
                     let errorResponse = try JSONDecoder().decode(RecordFetchErrorDictionary.self, from: data)
-                    self.invokeCompletionBlock(errorResponse)
+                    self.invokeOperationResultBlock(errorResponse)
                 }
             } catch {
                 // TODO: Catch per status code and use a helper function
@@ -107,7 +106,7 @@ public class CKWSFetchRecordsOperation: CKWSDatabaseOperation {
         }
     }
     
-    private func invokeCompletionBlock(_ completion: @autoclosure () -> (Error?)) {
+    private func invokeOperationResultBlock(_ completion: @autoclosure () -> (Error?)) {
         if let fetchRecordsResultBlock = self.fetchRecordsResultBlock {
             if let error = completion() {
                 fetchRecordsResultBlock(.failure(error))

@@ -19,9 +19,9 @@ public class CKWSQueryOperation: CKWSDatabaseOperation {
     /// An array of strings containing record field names that limits the amount of data returned in this operation. Only the fields specified in the array are returned. The default is `nil`, which fetches all record fields.
     public var desiredKeys: [String]?
     
-    public var recordFetchedBlock: ((CKWSRecord) -> Void)?
+    public var recordMatchedBlock: ((_ recordID: CKWSRecord.ID, _ recordResult: Result<CKWSRecord, Error>) -> Void)?
     
-    public var queryCompletionBlock: ((Result<Cursor?, Error>) -> Void)?
+    public var queryResultBlock: ((_ operationResult: Result<CKWSQueryOperation.Cursor?, Error>) -> Void)?
     
     public init(query: CKWSQuery) {
         self.query = query
@@ -40,12 +40,12 @@ public class CKWSQueryOperation: CKWSDatabaseOperation {
             
             guard error == nil else {
                 // swiftlint:disable:next force_unwrapping
-                self.invokeQueryCompletionBlock(.failure(error!))
+                self.invokeRecordMatchedBlock(.failure(error!))
                 return
             }
             
             guard let data = data, let response = response as? HTTPURLResponse else {
-                self.invokeQueryCompletionBlock(.failure(NSError()))
+                self.invokeRecordMatchedBlock(.failure(NSError()))
                 assertionFailure("Unexpected case. Debug this.")
                 return
             }
@@ -59,11 +59,11 @@ public class CKWSQueryOperation: CKWSDatabaseOperation {
                         self.invokeRecordFetchedBlock(CKWSRecord(recordDictionary: record))
                     }
                     
-                    self.invokeQueryCompletionBlock(.success(Cursor(query: self.query, continuationMarker: body.continuationMarker)))
+                    self.invokeRecordMatchedBlock(.success(Cursor(query: self.query, continuationMarker: body.continuationMarker)))
                     
                 default:
                     let errorResponse = try JSONDecoder().decode(RecordFetchErrorDictionary.self, from: data)
-                    self.invokeQueryCompletionBlock(.failure(errorResponse))
+                    self.invokeRecordMatchedBlock(.failure(errorResponse))
                 }
             } catch {
                 fatalError("decoding shouldn't fail, but if it does we should do something better here or fix it")
@@ -74,16 +74,19 @@ public class CKWSQueryOperation: CKWSDatabaseOperation {
         .resume()
     }
     
-    private func invokeQueryCompletionBlock(_ completion: @autoclosure () -> (Result<Cursor?, Error>)) {
+    private func invokeRecordMatchedBlock(_ completion: @autoclosure () -> (Result<Cursor?, Error>)) {
         
-        if let queryCompletionBlock = self.queryCompletionBlock {
+        if let queryCompletionBlock = self.queryResultBlock {
             queryCompletionBlock(completion())
         }
     }
     
     private func invokeRecordFetchedBlock(_ record: @autoclosure () -> (CKWSRecord)) {
-        if let recordFetchedBlock = self.recordFetchedBlock {
-            recordFetchedBlock(record())
+        if let recordFetchedBlock = self.recordMatchedBlock {
+            
+            let record = record()
+            
+            recordFetchedBlock(record.recordID, .success(record))
         }
     }
     

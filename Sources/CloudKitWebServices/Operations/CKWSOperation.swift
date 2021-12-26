@@ -45,13 +45,13 @@ public class CKWSOperation: Operation {
 
 // MARK: - Operation Support
 
-extension CKWSOperation {
+public extension CKWSOperation {
     
-    override public var isAsynchronous: Bool {
+    override var isAsynchronous: Bool {
         true
     }
     
-    override public var isExecuting: Bool {
+    override var isExecuting: Bool {
         get {
             
             lockQueue.sync {
@@ -68,7 +68,7 @@ extension CKWSOperation {
         }
     }
     
-    override public private(set) var isFinished: Bool {
+    override private(set) var isFinished: Bool {
         get {
             lockQueue.sync { () -> Bool in
                 _isFinished
@@ -83,7 +83,7 @@ extension CKWSOperation {
         }
     }
     
-    override public func start() {
+    override func start() {
         
         guard isCancelled == false else {
             finish()
