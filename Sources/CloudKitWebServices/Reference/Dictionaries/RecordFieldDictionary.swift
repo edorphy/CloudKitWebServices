@@ -84,8 +84,8 @@ struct RecordFieldDictionary: Codable {
             
         case "ASSETID":
             let assetDictionary = try values.decode(AssetDictionary.self, forKey: .value)
-            // TODO: Long term don't save as this type but create an 'AssetProtocol' that represents local and remote assets.
-            self.value = assetDictionary
+            // TODO: Figure out a way to detect if asset is remote or local, but for now since the library is read-only, it HAS to be remote
+            self.value = CKWSRemoteAsset(assetDictionary: assetDictionary)
             
         // TODO: Bytes
             
@@ -118,8 +118,8 @@ struct RecordFieldDictionary: Codable {
         
         case "ASSETID_LIST":
             let assetDictionaries = try values.decode([AssetDictionary].self, forKey: .value)
-            // TODO: Long term don't save as this type but create an 'AssetProtocol' that represents local and remote assets.
-            self.value = assetDictionaries
+            // TODO: Figure out a way to detect if asset is remote or local, but for now since the library is read-only, it HAS to be remote
+            self.value = assetDictionaries.map { CKWSRemoteAsset(assetDictionary: $0) }
             
         // TODO: Bytes List
             

@@ -56,6 +56,7 @@ public class CKWSQueryOperation: CKWSDatabaseOperation {
                     let body = try JSONDecoder().decode(ResponseBody.self, from: data)
                     
                     body.records.forEach { record in
+                        // TODO: Automatically download the fields that are assets THEN invoke the result fetched block
                         self.invokeRecordFetchedBlock(CKWSRecord(recordDictionary: record))
                     }
                     

@@ -62,21 +62,18 @@ public class CKWSFetchRecordsOperation: CKWSDatabaseOperation {
                     
                     let body = try JSONDecoder().decode(ResponseBody.self, from: data)
                     
-                    var records: [CKWSRecord.ID: CKWSRecord] = [:]
-                    var failureRecords: [CKWSRecord.ID: RecordFetchErrorDictionary] = [:]
-                    
                     body.records.forEach { recordResult in
                         
                         switch recordResult {
                         case .success(let recordDictionary):
                             let record = CKWSRecord(recordDictionary: recordDictionary)
-                            records[record.recordID] = record
+                            // TODO: Automatically download the fields that are assets THEN invoke the result fetched block
                             self.invokeRecordResultBlock((record.recordID, .success(record)))
                             
                         case .failure(let errorDictionary):
                             // swiftlint:disable:next force_unwrapping
                             let recordID = CKWSRecord.ID(recordName: errorDictionary.recordName!)
-                            failureRecords[recordID] = errorDictionary
+                            // TODO: Convert the error dictionary to a CKWSError and set the correct userInfo payload given the provided error dictionary
                             self.invokeRecordResultBlock((recordID, .failure(errorDictionary)))
                         }
                     }
