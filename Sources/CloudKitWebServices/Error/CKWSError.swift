@@ -9,7 +9,13 @@
 import Foundation
 
 public struct CKWSError: Error {
-    let code: Code
+    public let code: Code
+    public let userInfo: [String: Any]
+    
+    public init(code: Code, userInfo: [String: Any] = [:]) {
+        self.code = code
+        self.userInfo = userInfo
+    }
 }
 
 public extension CKWSError {
@@ -60,5 +66,30 @@ extension CKWSError: LocalizedError {
 }
 
 extension CKWSError: CustomNSError {
-    // TODO: Implement this
+    
+    public var errorCode: Int {
+        code.rawValue
+    }
+    
+    public var errorUserInfo: [String : Any] {
+        userInfo
+    }
+    
+    public static var errorDomain: String {
+        "CKWSErrorDomain"
+    }
+}
+
+internal extension CKWSError {
+    init(errorDictionary: RecordFetchErrorDictionary) {
+        switch errorDictionary.serverErrorCode {
+        case .notFound:
+            // TODO: Identify CloudKit behavior for contents of error, check if any userInfo
+            self.init(code: .unknownItem)
+            
+        default:
+            // TODO: Find the correct mapping for other errors
+            fatalError("Unexpected error received in record fetch operation, file a bug describing what you did")
+        }
+    }
 }

@@ -73,8 +73,9 @@ public class CKWSFetchRecordsOperation: CKWSDatabaseOperation {
                         case .failure(let errorDictionary):
                             // swiftlint:disable:next force_unwrapping
                             let recordID = CKWSRecord.ID(recordName: errorDictionary.recordName!)
-                            // TODO: Convert the error dictionary to a CKWSError and set the correct userInfo payload given the provided error dictionary
-                            self.invokeRecordResultBlock((recordID, .failure(errorDictionary)))
+                            let error = CKWSError(errorDictionary: errorDictionary)
+                            
+                            self.invokeRecordResultBlock((recordID, .failure(error)))
                         }
                     }
                     
