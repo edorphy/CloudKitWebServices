@@ -14,7 +14,7 @@ public class CKWSQueryOperation: CKWSDatabaseOperation {
     
     public var cursor: Cursor?
     
-    public var resultsLimit: Int = .maximumQueryLimit
+    public var resultsLimit: Int = CKWSQueryOperation.maximumResults
     
     /// An array of strings containing record field names that limits the amount of data returned in this operation. Only the fields specified in the array are returned. The default is `nil`, which fetches all record fields.
     public var desiredKeys: [String]?
@@ -130,8 +130,8 @@ public class CKWSQueryOperation: CKWSDatabaseOperation {
 
 // TODO: Move to better place
 
-private extension Int {
-    static let maximumQueryLimit: Int = 200
+extension CKWSQueryOperation {
+    static let maximumResults: Int = 200
 }
 
 // MARK: - Request/Response Body Types
