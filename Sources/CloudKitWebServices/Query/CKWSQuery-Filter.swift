@@ -48,5 +48,6 @@ public extension CKWSQuery.Filter {
         case equals = "EQUALS"
         case lessThan = "LESS_THAN"
         case beginsWith = "BEGINS_WITH"
+        case listContains = "LIST_CONTAINS"
     }
 }
