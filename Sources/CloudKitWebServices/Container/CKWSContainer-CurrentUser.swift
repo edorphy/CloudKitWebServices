@@ -1,8 +1,9 @@
 //
-//  File.swift
-//  
+//  CKWSContainer-CurrentUser.swift
+//  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 12/24/21.
+//  Copyright © 2021 Twin Cities App Dev LLC. All rights reserved.
 //
 
 import Foundation

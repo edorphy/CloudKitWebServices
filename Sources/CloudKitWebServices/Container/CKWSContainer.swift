@@ -33,20 +33,20 @@ public class CKWSContainer {
     
     internal let apiToken: APIToken
     
-    // TODO: Inject this to allow for robust short-circuit unit testing
-    private let session: URLSession = .shared
+    private let session: URLSession
     
     private let operationQueue: OperationQueue = OperationQueue()
     
     // MARK: - Initialization
     
-    public init(identifier: ContainerIdentifier, token: APIToken, environment: Environment = .production) {
+    public init(identifier: ContainerIdentifier, token: APIToken, environment: Environment = .production, session: URLSession = .shared) {
         
         // TODO: Ensure that the identifier begins with "iCloud." to help developers out.
         
         self.containerIdentifier = identifier
         self.apiToken = token
         self.environment = environment
+        self.session = .shared
     }
     
     // TODO: A second initializer that takes a configuration? Take a play out of the CloudKit JS lib API?
