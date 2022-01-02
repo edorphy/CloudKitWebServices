@@ -38,7 +38,11 @@ public class CKWSFetchRecordsOperation: CKWSDatabaseOperation {
             return
         }
         
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        guard let session = self.database?.container?.session else {
+            fatalError("Operation should always be configured with a database and contianer")
+        }
+        
+        let task = session.dataTask(with: request) { data, response, error in
             defer {
                 self.finish()
             }

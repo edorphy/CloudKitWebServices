@@ -16,7 +16,7 @@ extension CKWSContainer {
     }
     
     public func fetchUserRecordID(completionHandler: @escaping (Result<CKWSRecord.ID, Error>) -> Void) {
-        let operation = CKWSFetchCurrentUserRecordOperation(containerURL: self.getContainerURL(), apiToken: self.apiToken) { result in
+        let operation = CKWSFetchCurrentUserRecordOperation(session: self.session, containerURL: self.getContainerURL(), apiToken: self.apiToken) { result in
             completionHandler(result)
         }
         
@@ -26,13 +26,16 @@ extension CKWSContainer {
 
 private class CKWSFetchCurrentUserRecordOperation: CKWSOperation {
     
+    private let session: URLSession
+    
     private let containerURL: URL
     
     private let apiToken: CKWSContainer.APIToken
     
     private let resultBlock: (Result<CKWSRecord.ID, Error>) -> Void
     
-    init(containerURL: URL, apiToken: CKWSContainer.APIToken, resultBlock: @escaping (Result<CKWSRecord.ID, Error>) -> Void) {
+    init(session: URLSession, containerURL: URL, apiToken: CKWSContainer.APIToken, resultBlock: @escaping (Result<CKWSRecord.ID, Error>) -> Void) {
+        self.session = session
         self.containerURL = containerURL
         self.apiToken = apiToken
         self.resultBlock = resultBlock
@@ -43,7 +46,7 @@ private class CKWSFetchCurrentUserRecordOperation: CKWSOperation {
         // Fetching Current User (users/current)
         // https://developer.apple.com/library/archive/documentation/DataManagement/Conceptual/CloudKitWebServicesReference/GetCurrentUser.html
         
-        let task = URLSession.shared.dataTask(with: getRequestURL()) { data, response, error in
+        let task = self.session.dataTask(with: getRequestURL()) { data, response, error in
             guard error == nil else {
                 // swiftlint:disable:next force_unwrapping
                 self.resultBlock(.failure(error!))

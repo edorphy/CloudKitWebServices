@@ -33,7 +33,7 @@ public class CKWSContainer {
     
     internal let apiToken: APIToken
     
-    private let session: URLSession
+    internal let session: URLSession
     
     private let operationQueue: OperationQueue = OperationQueue()
     

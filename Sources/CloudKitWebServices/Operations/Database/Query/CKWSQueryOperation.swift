@@ -36,7 +36,11 @@ public class CKWSQueryOperation: CKWSDatabaseOperation {
     override public func main() {
         let request = createRequest()
         
-        URLSession.shared.dataTask(with: request) { data, response, error in
+        guard let session = self.database?.container?.session else {
+            fatalError("Operation should always be configured with a database and contianer")
+        }
+        
+        let task = session.dataTask(with: request) { data, response, error in
             
             guard error == nil else {
                 // swiftlint:disable:next force_unwrapping
@@ -72,7 +76,8 @@ public class CKWSQueryOperation: CKWSDatabaseOperation {
             
             self.finish()
         }
-        .resume()
+        
+        task.resume()
     }
     
     private func invokeRecordMatchedBlock(_ completion: @autoclosure () -> (Result<Cursor?, Error>)) {
