@@ -46,7 +46,7 @@ public class CKWSContainer {
         self.containerIdentifier = identifier
         self.apiToken = token
         self.environment = environment
-        self.session = .shared
+        self.session = session
     }
     
     // TODO: A second initializer that takes a configuration? Take a play out of the CloudKit JS lib API?
