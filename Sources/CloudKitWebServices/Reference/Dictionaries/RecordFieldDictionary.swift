@@ -10,17 +10,49 @@ import CoreLocation
 
 struct RecordFieldDictionary: Codable {
     
+    // MARK: - Types
+    
     enum CodingKeys: String, CodingKey {
         case value
         case type
     }
     
+    // This type isn't explicitly defined in the reference so it is internal.
+    // When integrating with the web API and inspecting the raw JSON you can find these type strings
+
+    // TODO: Like this name? It is internal but feels like it is a main type. Consider making it more verbose
+
+    enum FieldType: String, Codable {
+        case asset      = "ASSETID"
+        // TODO: case byte = "BYTE"
+        case dateTime   = "TIMESTAMP"
+        case double     = "DOUBLE"
+        case int64      = "INT64"
+        case location   = "LOCATION"
+        case reference  = "REFERENCE"
+        case string     = "STRING"
+        
+        case assetList      = "ASSETID_LIST"
+        // TODO: case byteList = "BYTE_LIST"
+        case dateTimeList   = "TIMESTAMP_LIST"
+        case doubleList     = "DOUBLE_LIST"
+        case int64List      = "INT64_LIST"
+        case locationList   = "LOCATION_LIST"
+        case referenceList  = "REFERENCE_LIST"
+        case stringList     = "STRING_LIST"
+        
+        // Observed undocumented / unexpected type string 'UNKNOWN_LIST'
+        // Submitted feedback: FB9825479
+        // TODO: case unknownList = "UNKNOWN_LIST"
+    }
+    
+    
     let value: CKWSRecordValueProtocol
     
     // TODO: The reference states that type is optional, but what is the practical usage of this? Maybe make it required
-    let type: String?
+    let type: FieldType?
     
-    init(value: CKWSRecordValueProtocol, type: String?) {
+    init(value: CKWSRecordValueProtocol, type: FieldType?) {
         self.value = value
         self.type = type
     }
@@ -28,6 +60,8 @@ struct RecordFieldDictionary: Codable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(type, forKey: .type)
+        
+        // TODO: Use the new type safe FieldType or guard type + data are same type?
         
         switch value {
             
@@ -65,7 +99,7 @@ struct RecordFieldDictionary: Codable {
         // TODO: Add support for array encoding
             
         default:
-            fatalError("RecordFieldDictionary encode not implemented for type \(type ?? "unspecified-type")")
+            fatalError("RecordFieldDictionary encode not implemented for type \(String(describing: type))")
         }
     }
     
@@ -73,83 +107,82 @@ struct RecordFieldDictionary: Codable {
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         
-        guard let type = try values.decodeIfPresent(String.self, forKey: .type) else {
-            // TODO: Not sure what to do here, it isn't documented
-            fatalError("figure out graceful decoding, maybe throw required key missing?")
+        guard let type = try values.decodeIfPresent(FieldType.self, forKey: .type) else {
+            let rawType = (try? values.decodeIfPresent(String.self, forKey: .type)) ?? "unknown type"
+            assertionFailure("Unexpected record field type: \(rawType), file an issue on GitHub with sample json/data and the record type from Console.")
+            self.type = .string
+            self.value = ""
+            return
         }
         
         self.type = type
         
         switch type {
             
-        case "ASSETID":
+        case .asset:
             let assetDictionary = try values.decode(AssetDictionary.self, forKey: .value)
             // TODO: Figure out a way to detect if asset is remote or local, but for now since the library is read-only, it HAS to be remote
             self.value = CKWSRemoteAsset(assetDictionary: assetDictionary)
             
         // TODO: Bytes
             
-        case "TIMESTAMP":
+        case .dateTime:
             // Documenation states an integer in milliseconds since 1970
             let timeInterval = try values.decode(Int64.self, forKey: .value)
             self.value = Date(timeIntervalSince1970: Double(timeInterval / 1000))
         
-        case "DOUBLE":
+        case .double:
             let doubleValue = try values.decode(Double.self, forKey: .value)
             self.value = doubleValue
             
-        case "INT64":
+        case .int64:
             let intValue = try values.decode(Int64.self, forKey: .value)
             self.value = intValue
             
-        case "LOCATION":
+        case .location:
             let locationDictionary = try values.decode(LocationDictionary.self, forKey: .value)
             self.value = CLLocation(locationDictionary: locationDictionary)
             
-        case "REFERENCE":
+        case .reference:
             let reference = try values.decode(ReferenceDictionary.self, forKey: .value)
             self.value = CKWSRecord.Reference(reference: reference)
         
-        case "STRING":
+        case .string:
             let stringValue = try values.decode(String.self, forKey: .value)
             self.value = stringValue
             
         // MARK: - List Support
         
-        case "ASSETID_LIST":
+        case .assetList:
             let assetDictionaries = try values.decode([AssetDictionary].self, forKey: .value)
             // TODO: Figure out a way to detect if asset is remote or local, but for now since the library is read-only, it HAS to be remote
             self.value = assetDictionaries.map { CKWSRemoteAsset(assetDictionary: $0) }
             
         // TODO: Bytes List
             
-        case "TIMESTAMP_LIST":
+        case .dateTimeList:
             // Documenation states an integer in milliseconds since 1970
             let timeIntervals = try values.decode([Int64].self, forKey: .value)
             self.value = timeIntervals.map { Date(timeIntervalSince1970: Double($0 / 1000)) }
             
-        case "DOUBLE_LIST":
+        case .doubleList:
             let doubleValues = try values.decode([Double].self, forKey: .value)
             self.value = doubleValues
             
-        case "INT64_LIST":
+        case .int64List:
             self.value = try values.decode([Int64].self, forKey: .value)
             
-        case "LOCATION_LIST":
+        case .locationList:
             let locationDictionaries = try values.decode([LocationDictionary].self, forKey: .value)
             self.value = locationDictionaries.map { CLLocation(locationDictionary: $0) }
             
-        case "REFERENCE_LIST":
+        case .referenceList:
             let references = try values.decode([ReferenceDictionary].self, forKey: .value)
             self.value = references.map { CKWSRecord.Reference(reference: $0) }
             
-        case "STRING_LIST":
+        case .stringList:
             let stringValues = try values.decode([String].self, forKey: .value)
             self.value = stringValues
-            
-        default:
-            print("Unhandeled type: \(type)")
-            fatalError("if you run into this, open up a PR with a new decoding strategy for the unhandled type")
         }
     }
 }

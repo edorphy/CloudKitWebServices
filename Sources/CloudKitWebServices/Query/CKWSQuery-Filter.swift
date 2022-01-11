@@ -28,16 +28,15 @@ public extension CKWSQuery.Filter {
     internal func getRecordFieldValue() -> RecordFieldDictionary {
         switch value {
         case let stringValue as String:
-            return RecordFieldDictionary(value: stringValue, type: "STRING")
+            return RecordFieldDictionary(value: stringValue, type: .string)
             
         case let referenceValue as ReferenceDictionary:
-            return RecordFieldDictionary(value: referenceValue, type: "REFERENCE")
+            return RecordFieldDictionary(value: referenceValue, type: .reference)
             
         case let recordReferenceValue as CKWSRecord.Reference:
-            return RecordFieldDictionary(value: recordReferenceValue, type: "REFERENCE")
+            return RecordFieldDictionary(value: recordReferenceValue, type: .reference)
             
         default:
-            assertionFailure("Need to implement this")
             fatalError("if you encounter this, open up a PR for the unhandled type")
         }
     }
