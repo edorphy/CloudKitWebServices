@@ -17,7 +17,7 @@ struct FilterDictionary: Encodable {
         case distance
     }
     
-    let comparator: CKWSQuery.Filter.Comparator
+    let comparator: CKQuery.Filter.Comparator
     let fieldName: String?
     let fieldValue: RecordFieldDictionary
     let distance: Double?
@@ -32,7 +32,7 @@ struct FilterDictionary: Encodable {
 }
 
 extension FilterDictionary {
-    init(queryFilter: CKWSQuery.Filter) {
+    init(queryFilter: CKQuery.Filter) {
         self.comparator = queryFilter.comparator
         self.fieldName = queryFilter.name
         self.fieldValue = queryFilter.getRecordFieldValue()

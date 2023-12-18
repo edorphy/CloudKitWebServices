@@ -47,12 +47,12 @@ struct RecordFieldDictionary: Codable {
     }
     
     
-    let value: CKWSRecordValueProtocol
+    let value: CKRecordValueProtocol
     
     // TODO: The reference states that type is optional, but what is the practical usage of this? Maybe make it required
     let type: FieldType?
     
-    init(value: CKWSRecordValueProtocol, type: FieldType?) {
+    init(value: CKRecordValueProtocol, type: FieldType?) {
         self.value = value
         self.type = type
     }
@@ -90,7 +90,7 @@ struct RecordFieldDictionary: Codable {
         case let referenceValue as ReferenceDictionary:
             try container.encode(referenceValue, forKey: .value)
             
-        case let recordReferenceValue as CKWSRecord.Reference:
+        case let recordReferenceValue as CKRecord.Reference:
             try container.encode(ReferenceDictionary(reference: recordReferenceValue), forKey: .value)
             
         case let stringValue as String:
@@ -122,7 +122,7 @@ struct RecordFieldDictionary: Codable {
         case .asset:
             let assetDictionary = try values.decode(AssetDictionary.self, forKey: .value)
             // TODO: Figure out a way to detect if asset is remote or local, but for now since the library is read-only, it HAS to be remote
-            self.value = CKWSRemoteAsset(assetDictionary: assetDictionary)
+            self.value = CKRemoteAsset(assetDictionary: assetDictionary)
             
         // TODO: Bytes
             
@@ -145,7 +145,7 @@ struct RecordFieldDictionary: Codable {
             
         case .reference:
             let reference = try values.decode(ReferenceDictionary.self, forKey: .value)
-            self.value = CKWSRecord.Reference(reference: reference)
+            self.value = CKRecord.Reference(reference: reference)
         
         case .string:
             let stringValue = try values.decode(String.self, forKey: .value)
@@ -156,7 +156,7 @@ struct RecordFieldDictionary: Codable {
         case .assetList:
             let assetDictionaries = try values.decode([AssetDictionary].self, forKey: .value)
             // TODO: Figure out a way to detect if asset is remote or local, but for now since the library is read-only, it HAS to be remote
-            self.value = assetDictionaries.map { CKWSRemoteAsset(assetDictionary: $0) }
+            self.value = assetDictionaries.map { CKRemoteAsset(assetDictionary: $0) }
             
         // TODO: Bytes List
             
@@ -178,7 +178,7 @@ struct RecordFieldDictionary: Codable {
             
         case .referenceList:
             let references = try values.decode([ReferenceDictionary].self, forKey: .value)
-            self.value = references.map { CKWSRecord.Reference(reference: $0) }
+            self.value = references.map { CKRecord.Reference(reference: $0) }
             
         case .stringList:
             let stringValues = try values.decode([String].self, forKey: .value)

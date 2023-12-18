@@ -28,7 +28,7 @@ class RecordFieldDictionaryTests: XCTestCase {
         
         XCTAssertEqual(value.type, .asset)
         
-        let asset = value.value as? CKWSRemoteAsset
+        let asset = value.value as? CKRemoteAsset
         XCTAssertNotNil(asset)
         XCTAssertEqual(asset?.downloadURL, URL(string: "https://cvws.icloud-content.com/B/somerecordpath")!)
     }
@@ -107,7 +107,7 @@ class RecordFieldDictionaryTests: XCTestCase {
     }
     
     func testDecodeReferenceType() throws {
-        let referenceRecordID: CKWSRecord.ID = CKWSRecord.ID(recordName: UUID().uuidString)
+        let referenceRecordID: CKRecord.ID = CKRecord.ID(recordName: UUID().uuidString)
         
         let testData =
         """
@@ -125,10 +125,10 @@ class RecordFieldDictionaryTests: XCTestCase {
         
         XCTAssertEqual(value.type, .reference)
         
-        let reference = value.value as? CKWSRecord.Reference
+        let reference = value.value as? CKRecord.Reference
         XCTAssertNotNil(reference)
         XCTAssertEqual(reference?.recordID, referenceRecordID)
-        XCTAssertEqual(reference?.action, CKWSRecord.ReferenceAction.none)
+        XCTAssertEqual(reference?.action, CKRecord.ReferenceAction.none)
     }
     
     func testDecodeStringType() throws {

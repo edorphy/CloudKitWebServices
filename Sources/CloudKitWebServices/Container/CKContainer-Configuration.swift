@@ -1,5 +1,5 @@
 //
-//  CKWSContainer-Configuration.swift
+//  CKContainer-Configuration.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 1/2/22.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension CKWSContainer {
+public extension CKContainer {
     struct Configuration {
         public let containerIdentifier: ContainerIdentifier
         public let apiToken: APIToken

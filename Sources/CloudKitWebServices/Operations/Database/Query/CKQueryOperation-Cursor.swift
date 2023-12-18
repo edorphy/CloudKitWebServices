@@ -1,5 +1,5 @@
 //
-//  CKWSQueryOperation-Cursor.swift
+//  CKQueryOperation-Cursor.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 12/26/21.
@@ -8,12 +8,12 @@
 
 import Foundation
 
-public extension CKWSQueryOperation {
+public extension CKQueryOperation {
     struct Cursor {
-        let query: CKWSQuery
+        let query: CKQuery
         let continuationMarker: String
         
-        init?(query: CKWSQuery, continuationMarker: String?) {
+        init?(query: CKQuery, continuationMarker: String?) {
             guard let continuationMarker = continuationMarker else {
                 return nil
             }

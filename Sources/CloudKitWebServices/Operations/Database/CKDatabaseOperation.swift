@@ -1,5 +1,5 @@
 //
-//  CKWSDatabaseOperation.swift
+//  CKDatabaseOperation.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/12/21.
@@ -8,12 +8,12 @@
 
 import Foundation
 
-public class CKWSDatabaseOperation: CKWSOperation {
-    var database: CKWSDatabase?
+public class CKDatabaseOperation: CKOperation {
+    var database: CKDatabase?
 }
 
-internal extension CKWSDatabaseOperation {
-    func getRecordsURL(database: CKWSDatabase) -> URL {
+internal extension CKDatabaseOperation {
+    func getRecordsURL(database: CKDatabase) -> URL {
         let url = database.getURL()
         return url.appendingPathComponent("records")
     }

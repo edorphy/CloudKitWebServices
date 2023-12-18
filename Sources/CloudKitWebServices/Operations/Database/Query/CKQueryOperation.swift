@@ -1,5 +1,5 @@
 //
-//  CKWSQueryOperation.swift
+//  CKQueryOperation.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/13/21.
@@ -8,27 +8,27 @@
 
 import Foundation
 
-public class CKWSQueryOperation: CKWSDatabaseOperation {
+public class CKQueryOperation: CKDatabaseOperation {
     
-    public var query: CKWSQuery
+    public var query: CKQuery
     
     public var cursor: Cursor?
     
-    public var resultsLimit: Int = CKWSQueryOperation.maximumResults
+    public var resultsLimit: Int = CKQueryOperation.maximumResults
     
     /// An array of strings containing record field names that limits the amount of data returned in this operation. Only the fields specified in the array are returned. The default is `nil`, which fetches all record fields.
     public var desiredKeys: [String]?
     
-    public var recordMatchedBlock: ((_ recordID: CKWSRecord.ID, _ recordResult: Result<CKWSRecord, Error>) -> Void)?
+    public var recordMatchedBlock: ((_ recordID: CKRecord.ID, _ recordResult: Result<CKRecord, Error>) -> Void)?
     
-    public var queryResultBlock: ((_ operationResult: Result<CKWSQueryOperation.Cursor?, Error>) -> Void)?
+    public var queryResultBlock: ((_ operationResult: Result<CKQueryOperation.Cursor?, Error>) -> Void)?
     
-    public init(query: CKWSQuery) {
+    public init(query: CKQuery) {
         self.query = query
         self.cursor = nil
     }
     
-    public init(cursor: CKWSQueryOperation.Cursor) {
+    public init(cursor: CKQueryOperation.Cursor) {
         self.query = cursor.query
         self.cursor = cursor
     }
@@ -61,7 +61,7 @@ public class CKWSQueryOperation: CKWSDatabaseOperation {
                     
                     body.records.forEach { record in
                         // TODO: Automatically download the fields that are assets THEN invoke the result fetched block
-                        self.invokeRecordFetchedBlock(CKWSRecord(recordDictionary: record))
+                        self.invokeRecordFetchedBlock(CKRecord(recordDictionary: record))
                     }
                     
                     self.invokeRecordMatchedBlock(.success(Cursor(query: self.query, continuationMarker: body.continuationMarker)))
@@ -87,7 +87,7 @@ public class CKWSQueryOperation: CKWSDatabaseOperation {
         }
     }
     
-    private func invokeRecordFetchedBlock(_ record: @autoclosure () -> (CKWSRecord)) {
+    private func invokeRecordFetchedBlock(_ record: @autoclosure () -> (CKRecord)) {
         if let recordFetchedBlock = self.recordMatchedBlock {
             
             let record = record()
@@ -135,13 +135,13 @@ public class CKWSQueryOperation: CKWSDatabaseOperation {
 
 // TODO: Move to better place
 
-extension CKWSQueryOperation {
+extension CKQueryOperation {
     static let maximumResults: Int = 200
 }
 
 // MARK: - Request/Response Body Types
 
-internal extension CKWSQueryOperation {
+internal extension CKQueryOperation {
     struct RequestBody: Encodable {
         // TODO: ZoneID
         

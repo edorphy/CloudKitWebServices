@@ -1,5 +1,5 @@
 //
-//  CKWSFetchRecordsOperation.swift
+//  CKFetchRecordsOperation.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/12/21.
@@ -8,21 +8,21 @@
 
 import Foundation
 
-public class CKWSFetchRecordsOperation: CKWSDatabaseOperation {
+public class CKFetchRecordsOperation: CKDatabaseOperation {
     
     // MARK: - Properties
     
-    private let recordIDs: [CKWSRecord.ID]
+    private let recordIDs: [CKRecord.ID]
     
-    public var desiredKeys: [CKWSRecord.FieldKey]?
+    public var desiredKeys: [CKRecord.FieldKey]?
     
-    public var perRecordResultBlock: ((_ recordID: CKWSRecord.ID, _ recordResult: Result<CKWSRecord, Error>) -> Void)?
+    public var perRecordResultBlock: ((_ recordID: CKRecord.ID, _ recordResult: Result<CKRecord, Error>) -> Void)?
     
     public var fetchRecordsResultBlock: ((_ operationResult: Result<Void, Error>) -> Void)?
     
     // MARK: - Initialization
     
-    public init(recordIDs: [CKWSRecord.ID]) {
+    public init(recordIDs: [CKRecord.ID]) {
         self.recordIDs = recordIDs
     }
     
@@ -70,14 +70,14 @@ public class CKWSFetchRecordsOperation: CKWSDatabaseOperation {
                         
                         switch recordResult {
                         case .success(let recordDictionary):
-                            let record = CKWSRecord(recordDictionary: recordDictionary)
+                            let record = CKRecord(recordDictionary: recordDictionary)
                             // TODO: Automatically download the fields that are assets THEN invoke the result fetched block
                             self.invokeRecordResultBlock((record.recordID, .success(record)))
                             
                         case .failure(let errorDictionary):
                             // swiftlint:disable:next force_unwrapping
-                            let recordID = CKWSRecord.ID(recordName: errorDictionary.recordName!)
-                            let error = CKWSError(errorDictionary: errorDictionary)
+                            let recordID = CKRecord.ID(recordName: errorDictionary.recordName!)
+                            let error = CKError(errorDictionary: errorDictionary)
                             
                             self.invokeRecordResultBlock((recordID, .failure(error)))
                         }
@@ -86,7 +86,7 @@ public class CKWSFetchRecordsOperation: CKWSDatabaseOperation {
                     self.invokeOperationResultBlock(nil)
                     
                 case 503:
-                    self.invokeOperationResultBlock(CKWSError(code: .serviceUnavailable))
+                    self.invokeOperationResultBlock(CKError(code: .serviceUnavailable))
                     
                 default:
                     let errorResponse = try JSONDecoder().decode(RecordFetchErrorDictionary.self, from: data)
@@ -101,7 +101,7 @@ public class CKWSFetchRecordsOperation: CKWSDatabaseOperation {
         task.resume()
     }
     
-    private func invokeRecordResultBlock(_ completion: @autoclosure () -> (recordID: CKWSRecord.ID, result: Result<CKWSRecord, Error>)) {
+    private func invokeRecordResultBlock(_ completion: @autoclosure () -> (recordID: CKRecord.ID, result: Result<CKRecord, Error>)) {
         if let perRecordResultBlock = self.perRecordResultBlock {
             let result = completion()
             perRecordResultBlock(result.recordID, result.result)
@@ -142,7 +142,7 @@ public class CKWSFetchRecordsOperation: CKWSDatabaseOperation {
     }
 }
 
-extension CKWSFetchRecordsOperation {
+extension CKFetchRecordsOperation {
     func getURL() -> URL {
         guard let database = self.database else {
             fatalError("the operation was not configured with a database which is required")
@@ -157,7 +157,7 @@ extension CKWSFetchRecordsOperation {
 
 // MARK: - Request/Response Body Types
 
-internal extension CKWSFetchRecordsOperation {
+internal extension CKFetchRecordsOperation {
     struct RequestBody: Encodable {
         
         /// Array of record dictionaries, described in Lookup Record Dictionary, identifying the records to fetch.
@@ -166,7 +166,7 @@ internal extension CKWSFetchRecordsOperation {
         // TODO: ZoneID
         
         // TODO: DesiredKeys
-        let desiredKeys: [CKWSRecord.FieldKey]?
+        let desiredKeys: [CKRecord.FieldKey]?
         
         // Explicitly set this to false in case default behaivor changes. The Record Decoding is setup to expect this behavior.
         let numbersAsStrings: Bool = false

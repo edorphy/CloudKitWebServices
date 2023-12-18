@@ -1,5 +1,5 @@
 //
-//  CKWSAsset.swift
+//  CKAsset.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/19/21.
@@ -9,7 +9,7 @@
 import Foundation
 
 /// An external file that belongs to a record.
-public struct CKWSAsset {
+public struct CKAsset {
     /// The URL for accessing the asset.
     ///
     /// After you create an asset, use the URL in this property to access the asset's contents. The URL in this property is different from the one you specified when creating the asset.
@@ -22,4 +22,4 @@ public struct CKWSAsset {
     }
 }
 
-extension CKWSAsset: CKWSRecordValueProtocol { }
+extension CKAsset: CKRecordValueProtocol { }

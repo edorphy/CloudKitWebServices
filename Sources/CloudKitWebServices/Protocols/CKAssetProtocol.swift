@@ -1,5 +1,5 @@
 //
-//  CKWSAssetProtocol.swift
+//  CKAssetProtocol.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 12/26/21.
@@ -8,6 +8,6 @@
 
 import Foundation
 
-public protocol CKWSAssetProtocol {
+public protocol CKAssetProtocol {
     
 }

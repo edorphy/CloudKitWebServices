@@ -1,5 +1,5 @@
 //
-//  CKWSQuery.swift
+//  CKQuery.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/13/21.
@@ -8,14 +8,14 @@
 
 import Foundation
 
-public struct CKWSQuery {
+public struct CKQuery {
     public let recordType: String
     
-    public let filters: [CKWSQuery.Filter]?
+    public let filters: [CKQuery.Filter]?
     
     public var sortDescriptors: [NSSortDescriptor]?
     
-    public init(recordType: String, filters: [CKWSQuery.Filter]? = nil) {
+    public init(recordType: String, filters: [CKQuery.Filter]? = nil) {
         self.recordType = recordType
         self.filters = filters
     }

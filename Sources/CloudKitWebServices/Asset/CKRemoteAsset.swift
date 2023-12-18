@@ -1,5 +1,5 @@
 //
-//  CKWSRemoteAsset.swift
+//  CKRemoteAsset.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 12/26/21.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct CKWSRemoteAsset: CKWSAssetProtocol {
+public struct CKRemoteAsset: CKAssetProtocol {
     public let downloadURL: URL
     
     init(assetDictionary: AssetDictionary) {
@@ -20,4 +20,4 @@ public struct CKWSRemoteAsset: CKWSAssetProtocol {
     }
 }
 
-extension CKWSRemoteAsset: CKWSRecordValueProtocol { }
+extension CKRemoteAsset: CKRecordValueProtocol { }

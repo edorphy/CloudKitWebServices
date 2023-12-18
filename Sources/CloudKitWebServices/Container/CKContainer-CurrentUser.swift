@@ -1,5 +1,5 @@
 //
-//  CKWSContainer-CurrentUser.swift
+//  CKContainer-CurrentUser.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 12/24/21.
@@ -8,15 +8,15 @@
 
 import Foundation
 
-extension CKWSContainer {
+extension CKContainer {
     
     // TODO: This error object is temporary and will be hidden internally once WSWebAuthenticationSession code is working with something like a `showSignIn` func.
     public struct LoginError: Error {
         public let redirectURL: URL
     }
     
-    public func fetchUserRecordID(completionHandler: @escaping (Result<CKWSRecord.ID, Error>) -> Void) {
-        let operation = CKWSFetchCurrentUserRecordOperation(session: self.session, containerURL: self.getContainerURL(), apiToken: self.apiToken) { result in
+    public func fetchUserRecordID(completionHandler: @escaping (Result<CKRecord.ID, Error>) -> Void) {
+        let operation = CKFetchCurrentUserRecordOperation(session: self.session, containerURL: self.getContainerURL(), apiToken: self.apiToken) { result in
             completionHandler(result)
         }
         
@@ -24,17 +24,17 @@ extension CKWSContainer {
     }
 }
 
-private class CKWSFetchCurrentUserRecordOperation: CKWSOperation {
+private class CKFetchCurrentUserRecordOperation: CKOperation {
     
     private let session: URLSession
     
     private let containerURL: URL
     
-    private let apiToken: CKWSContainer.APIToken
+    private let apiToken: CKContainer.APIToken
     
-    private let resultBlock: (Result<CKWSRecord.ID, Error>) -> Void
+    private let resultBlock: (Result<CKRecord.ID, Error>) -> Void
     
-    init(session: URLSession, containerURL: URL, apiToken: CKWSContainer.APIToken, resultBlock: @escaping (Result<CKWSRecord.ID, Error>) -> Void) {
+    init(session: URLSession, containerURL: URL, apiToken: CKContainer.APIToken, resultBlock: @escaping (Result<CKRecord.ID, Error>) -> Void) {
         self.session = session
         self.containerURL = containerURL
         self.apiToken = apiToken
@@ -62,7 +62,7 @@ private class CKWSFetchCurrentUserRecordOperation: CKWSOperation {
                 do {
                     let responseBody = try JSONDecoder().decode(OkResponseBody.self, from: data)
                     
-                    self.resultBlock(.success(CKWSRecord.ID(recordName: responseBody.userRecordName)))
+                    self.resultBlock(.success(CKRecord.ID(recordName: responseBody.userRecordName)))
                 } catch {
                     assertionFailure("failed to decode ok response body with error: \(error)")
                     self.resultBlock(.failure(error))
@@ -86,7 +86,7 @@ private class CKWSFetchCurrentUserRecordOperation: CKWSOperation {
                     
                     print("OAuth Token: \(responseBody.redirectURL.absoluteString)")
                     
-                    self.resultBlock(.failure(CKWSContainer.LoginError(redirectURL: responseBody.redirectURL)))
+                    self.resultBlock(.failure(CKContainer.LoginError(redirectURL: responseBody.redirectURL)))
                 } catch {
                     
                 }

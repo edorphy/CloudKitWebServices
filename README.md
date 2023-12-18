@@ -19,15 +19,20 @@ The goal of this project is to provide developers with easy access to CloudKit w
 
 ## Getting Started
 
-To get started with CloudKit Web Services, first create a `CKWSContainer`.
+This package is designed to mirror Apple's CloudKit framework when possible. This will allow the library to be a drop-in replacement for the native CloudKit client when it isn't available.
+
+To get started with CloudKit Web Services, first create a `CKContainer`.
 
 ```
 
 // Configuration
+
+import CloudKitWebServices
+
 let identifier = "iCloud.{your-container-name}"
 let token = "{your-token-generated-from-cloudkit-console}"
 
-let container = CKWSContainer(identifier: identifier, token: token, enviornment: .development)
+let container = CKContainer(identifier: identifier, token: token, environment: .development)
 
 ```
 
@@ -36,7 +41,7 @@ Creating a query request
 ```
 
 // Create an operation that queries all records of the "ExampleType"
-let queryOperation = CKWSQueryOperation(query: CKWSQuery(recordType: "ExampleType"))
+let queryOperation = CKQueryOperation(query: CKQuery(recordType: "ExampleType"))
 
 queryOperation.recordMatchedBlock = { recordID, result in 
   switch result {
