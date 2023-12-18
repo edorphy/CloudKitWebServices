@@ -1,5 +1,5 @@
 //
-//  Query-Filter-LocationDistance.swift
+//  CKQuery-Filter-LocationDistance.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/16/21.
@@ -9,7 +9,7 @@
 import CoreLocation
 import Foundation
 
-public extension CKWSQuery.Filter {
+public extension CKQuery.Filter {
     init(name: String, distance: Double, to location: CLLocation) {
         self.name = name
         self.comparator = .lessThan

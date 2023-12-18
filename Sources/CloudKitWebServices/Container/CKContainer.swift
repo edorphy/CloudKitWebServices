@@ -1,5 +1,5 @@
 //
-//  CKWSContainer.swift
+//  CKContainer.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/12/21.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class CKWSContainer {
+public class CKContainer {
     
     // MARK: - Types
     
@@ -27,8 +27,8 @@ public class CKWSContainer {
     
     public let environment: Environment
     
-    public private(set) lazy var publicCloudDatabase: CKWSDatabase = {
-        CKWSDatabase(container: self, scope: .public)
+    public private(set) lazy var publicCloudDatabase: CKDatabase = {
+        CKDatabase(container: self, scope: .public)
     }()
     
     internal let apiToken: APIToken
@@ -53,21 +53,21 @@ public class CKWSContainer {
     
     // MARK: - Public Functions
     
-    public func database(with scope: CKWSDatabase.Scope) -> CKWSDatabase {
+    public func database(with scope: CKDatabase.Scope) -> CKDatabase {
         switch scope {
         case .public:
             return self.publicCloudDatabase
         }
     }
     
-    public func add(_ operation: CKWSOperation) {
+    public func add(_ operation: CKOperation) {
         
         // TODO: Inspect the configuration and apply them to the operation before enqueuing.
         self.operationQueue.addOperation(operation)
     }
 }
 
-extension CKWSContainer {
+extension CKContainer {
     
     func getContainerURL() -> URL {
         

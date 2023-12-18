@@ -1,5 +1,5 @@
 //
-//  CKWSError.swift
+//  CKError.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 12/26/21.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct CKWSError: Error {
+public struct CKError: Error {
     public let code: Code
     public let userInfo: [String: Any]
     
@@ -18,7 +18,7 @@ public struct CKWSError: Error {
     }
 }
 
-public extension CKWSError {
+public extension CKError {
     
     // https://developer.apple.com/documentation/cloudkit/ckerror/code
     
@@ -61,11 +61,11 @@ public extension CKWSError {
     }
 }
 
-extension CKWSError: LocalizedError {
+extension CKError: LocalizedError {
     // TODO: Implement this
 }
 
-extension CKWSError: CustomNSError {
+extension CKError: CustomNSError {
     
     public var errorCode: Int {
         code.rawValue
@@ -76,11 +76,11 @@ extension CKWSError: CustomNSError {
     }
     
     public static var errorDomain: String {
-        "CKWSErrorDomain"
+        "CKErrorDomain"
     }
 }
 
-internal extension CKWSError {
+internal extension CKError {
     init(errorDictionary: RecordFetchErrorDictionary) {
         switch errorDictionary.serverErrorCode {
         case .notFound:

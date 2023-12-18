@@ -1,5 +1,5 @@
 //
-//  Record-Reference.swift
+//  CKRecord-Reference.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/16/21.
@@ -8,23 +8,23 @@
 
 import Foundation
 
-public extension CKWSRecord {
+public extension CKRecord {
     struct Reference: Equatable, Hashable {
-        public let recordID: CKWSRecord.ID
+        public let recordID: CKRecord.ID
         public let action: ReferenceAction
         
-        public init(recordID: CKWSRecord.ID, action: ReferenceAction) {
+        public init(recordID: CKRecord.ID, action: ReferenceAction) {
             self.recordID = recordID
             self.action = action
         }
         
-        public init(record: CKWSRecord, action: ReferenceAction) {
+        public init(record: CKRecord, action: ReferenceAction) {
             self.recordID = record.recordID
             self.action = action
         }
         
         internal init(reference: ReferenceDictionary) {
-            self.recordID = CKWSRecord.ID(recordName: reference.recordName)
+            self.recordID = CKRecord.ID(recordName: reference.recordName)
             self.action = {
                 guard let action = reference.action else { return .none }
                 switch action {

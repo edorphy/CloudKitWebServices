@@ -1,5 +1,5 @@
 //
-//  CKWSRecord.swift
+//  CKRecord.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/13/21.
@@ -8,28 +8,28 @@
 
 import Foundation
 
-public class CKWSRecord {
+public class CKRecord {
     
     public typealias RecordType = String
     
     public typealias FieldKey = String
     
-    public let recordID: CKWSRecord.ID
+    public let recordID: CKRecord.ID
     public let recordType: RecordType
     
     public let creationDate: Date?
-    public let creatorUserRecordID: CKWSRecord.ID?
+    public let creatorUserRecordID: CKRecord.ID?
     
     public let modificationDate: Date?
-    public let lastModifiedUserRecordID: CKWSRecord.ID?
+    public let lastModifiedUserRecordID: CKRecord.ID?
     
     public let recordChangeTag: String?
     
-    public var fields: [String: CKWSRecordValueProtocol]
+    public var fields: [String: CKRecordValueProtocol]
     
     // TODO: Add support for parent, share, allTokens, etc.
     
-    public init(recordType: RecordType, recordID: CKWSRecord.ID) {
+    public init(recordType: RecordType, recordID: CKRecord.ID) {
         self.recordType = recordType
         self.recordID = recordID
         
@@ -45,14 +45,14 @@ public class CKWSRecord {
     }
     
     init(recordDictionary: RecordDictionary) {
-        self.recordID = CKWSRecord.ID(recordName: recordDictionary.recordName)
+        self.recordID = CKRecord.ID(recordName: recordDictionary.recordName)
         self.recordType = recordDictionary.recordType
         self.recordChangeTag = recordDictionary.recordChangeTag
         
         if let created = recordDictionary.created {
             // Dates are saved as milliseconds from 1970 so divide by 1000 is required to convert to seconds
             self.creationDate = Date(timeIntervalSince1970: created.timestamp / 1000)
-            self.creatorUserRecordID = CKWSRecord.ID(recordName: created.userRecordName)
+            self.creatorUserRecordID = CKRecord.ID(recordName: created.userRecordName)
         } else {
             self.creationDate = nil
             self.creatorUserRecordID = nil
@@ -61,7 +61,7 @@ public class CKWSRecord {
         if let modified = recordDictionary.modified {
             // Dates are saved as milliseconds from 1970 so divide by 1000 is required to convert to seconds
             self.modificationDate = Date(timeIntervalSince1970: modified.timestamp / 1000)
-            self.lastModifiedUserRecordID = CKWSRecord.ID(recordName: modified.userRecordName)
+            self.lastModifiedUserRecordID = CKRecord.ID(recordName: modified.userRecordName)
         } else {
             self.modificationDate = nil
             self.lastModifiedUserRecordID = nil
@@ -72,7 +72,7 @@ public class CKWSRecord {
         })
     }
     
-    public subscript(key: String) -> CKWSRecordValueProtocol? {
+    public subscript(key: String) -> CKRecordValueProtocol? {
         fields[key]
     }
 }

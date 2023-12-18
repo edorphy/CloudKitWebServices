@@ -1,5 +1,5 @@
 //
-//  Query-Filter.swift
+//  CKQuery-Filter.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/16/21.
@@ -8,17 +8,17 @@
 
 import Foundation
 
-public extension CKWSQuery {
+public extension CKQuery {
     struct Filter {
         let name: String
         let comparator: Comparator
-        let value: CKWSRecordValueProtocol
+        let value: CKRecordValueProtocol
         let distance: Double?
     }
 }
 
-public extension CKWSQuery.Filter {
-    init(name: String, comparator: CKWSQuery.Filter.Comparator, value: CKWSRecordValueProtocol) {
+public extension CKQuery.Filter {
+    init(name: String, comparator: CKQuery.Filter.Comparator, value: CKRecordValueProtocol) {
         self.name = name
         self.comparator = comparator
         self.value = value
@@ -33,7 +33,7 @@ public extension CKWSQuery.Filter {
         case let referenceValue as ReferenceDictionary:
             return RecordFieldDictionary(value: referenceValue, type: .reference)
             
-        case let recordReferenceValue as CKWSRecord.Reference:
+        case let recordReferenceValue as CKRecord.Reference:
             return RecordFieldDictionary(value: recordReferenceValue, type: .reference)
             
         default:
@@ -42,7 +42,7 @@ public extension CKWSQuery.Filter {
     }
 }
 
-public extension CKWSQuery.Filter {
+public extension CKQuery.Filter {
     enum Comparator: String, Codable {
         case equals = "EQUALS"
         case lessThan = "LESS_THAN"

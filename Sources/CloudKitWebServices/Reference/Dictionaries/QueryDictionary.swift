@@ -21,7 +21,7 @@ struct QueryDictionary: Encodable {
 }
 
 extension QueryDictionary {
-    init(query: CKWSQuery) {
+    init(query: CKQuery) {
         self.recordType = query.recordType
         
         self.filterBy = query.filters?.compactMap({ queryFilter in

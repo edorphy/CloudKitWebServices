@@ -1,5 +1,5 @@
 //
-//  CKWSDatabase.swift
+//  CKDatabase.swift
 //  CloudKitWebServices
 //
 //  Created by Eric Dorphy on 6/12/21.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class CKWSDatabase {
+public class CKDatabase {
     
     // MARK: - Types
     
@@ -27,18 +27,18 @@ public class CKWSDatabase {
     
     // MARK: - Properties
     
-    internal private(set) weak var container: CKWSContainer?
+    internal private(set) weak var container: CKContainer?
     
     public let scope: Scope
     
     // MARK: - Initialization
     
-    init(container: CKWSContainer, scope: Scope) {
+    init(container: CKContainer, scope: Scope) {
         self.container = container
         self.scope = scope
     }
     
-    public func add(_ operation: CKWSDatabaseOperation) {
+    public func add(_ operation: CKDatabaseOperation) {
         guard operation.isCancelled == false else {
             // TODO: Check CloudKit behavior and see which completion handlers are still invoked in this case.
             return
@@ -57,7 +57,7 @@ public class CKWSDatabase {
     }
 }
 
-internal extension CKWSDatabase {
+internal extension CKDatabase {
     func getURL() -> URL {
         guard let container = container else {
             fatalError("database is missing container")
